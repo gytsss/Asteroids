@@ -1,6 +1,8 @@
 #include <iostream>
 #include "raylib.h"
 #include "spaceShip.h"
+#include <cmath>
+
 
 using namespace std;
 
@@ -12,14 +14,15 @@ int main()
 	float screenHeight = 768;
 
 	InitWindow(screenWidht, screenHeight, "Asteroids");
+	HideCursor();
 
 
 	Texture2D shipSprite = LoadTexture("assets/bluespaceship.png");
 
 	Vector2 mousePosition;
 
-	Rectangle nave = { GetScreenWidth() / 2, GetScreenHeight() / 2 , 15, 8};
-	Vector2 pivot = {nave.x + 7.5, nave.y + 4};
+	Rectangle nave = { GetScreenWidth() / 2, GetScreenHeight() / 2 , 50, 30 };
+	Vector2 pivot = { 25, 15 };
 
 	initShip(ship);
 
@@ -29,28 +32,37 @@ int main()
 
 		//ship.position = {(float) GetScreenWidth() / 2, (float)GetScreenHeight() / 2 };
 
-		//Vector2 vectorDirection = {ship.position - mousePosition};
-
-		HideCursor();
+		Vector2 vectorDirection = { mousePosition.x - ship.position.x,  mousePosition.y - ship.position.y };
 
 
-		if (CheckCollisionPointCircle(mousePosition, Vector2{ ship.position.x + 26, ship.position.y + 26 }, ship.radius))
+		float arcTan = atan2 (vectorDirection.y, vectorDirection.x);
+		float angle = arcTan * 180 / PI;
+
+
+		ship.rotation = angle;
+
+
+		/*if (CheckCollisionPointCircle(mousePosition, Vector2{ ship.position.x + 26, ship.position.y + 26 }, ship.radius))
 		{
 			ship.position = { (float)GetRandomValue(90, 1000), (float)GetRandomValue(90, 700) };
 
-		}
+		}*/
 
 		BeginDrawing();
 		ClearBackground(BLACK);
 
 
-		DrawCircleLines(ship.position.x + 26, ship.position.y + 26, ship.radius, WHITE);
-		DrawRectanglePro(nave, pivot, 0, RED);
-		///*DrawTextureEx(shipSprite, ship.position, 0, 1, WHITE);
-		//*/DrawTextureEx(shipSprite, ship.position, 90, 1, WHITE);
-		DrawPixelV(mousePosition, WHITE);
+		//DrawCircleLines(ship.position.x + 26, ship.position.y + 26, ship.radius, WHITE);
+
+		DrawText(TextFormat("Angle: %f", ship.rotation), 200, 80, 20, RED);
+		DrawRectanglePro(nave, pivot, ship.rotation, RED);
+		DrawLineEx(Vector2{ nave.x, nave.y }, mousePosition, 1, WHITE);
+		DrawFPS(10, 10);
+
+		DrawTextureEx(shipSprite, ship.position, ship.rotation, 1, WHITE);
 
 
+		DrawPixelV(mousePosition, RED);
 
 		EndDrawing();
 	}
