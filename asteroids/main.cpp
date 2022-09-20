@@ -1,7 +1,8 @@
 #include <iostream>
 #include "raylib.h"
+#include "math.h"
 #include "spaceShip.h"
-#include <cmath>
+#include "game.h"
 
 
 using namespace std;
@@ -14,20 +15,23 @@ int main()
 	float screenHeight = 768;
 
 	InitWindow(screenWidht, screenHeight, "Asteroids");
+	SetWindowState(FLAG_VSYNC_HINT);
 	HideCursor();
 
+	initShip(ship);
 
 	Texture2D shipSprite = LoadTexture("assets/bluespaceship.png");
 
 	Vector2 mousePosition;
 
-	Rectangle nave = { GetScreenWidth() / 2, GetScreenHeight() / 2 , 50, 30 };
 	Vector2 pivot = { 25, 15 };
+	float vectorModule;
+	Vector2 normalizeDirect;
 
-	initShip(ship);
 
 	while (!WindowShouldClose())
 	{
+		Rectangle nave = { ship.position.x, ship.position.y , 50, 30 };
 		mousePosition = GetMousePosition();
 
 		//ship.position = {(float) GetScreenWidth() / 2, (float)GetScreenHeight() / 2 };
@@ -35,11 +39,18 @@ int main()
 		Vector2 vectorDirection = { mousePosition.x - ship.position.x,  mousePosition.y - ship.position.y };
 
 
-		float arcTan = atan2 (vectorDirection.y, vectorDirection.x);
+
+		float arcTan = atan2(vectorDirection.y, vectorDirection.x);
 		float angle = arcTan * 180 / PI;
 
-
 		ship.rotation = angle;
+
+		vectorModule = sqrt(pow(vectorDirection.x, 2) + pow(vectorDirection.y, 2));
+
+		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
+
+		//input
+		input(ship, normalizeDirect);
 
 
 		/*if (CheckCollisionPointCircle(mousePosition, Vector2{ ship.position.x + 26, ship.position.y + 26 }, ship.radius))
@@ -59,7 +70,7 @@ int main()
 		DrawLineEx(Vector2{ nave.x, nave.y }, mousePosition, 1, WHITE);
 		DrawFPS(10, 10);
 
-		DrawTextureEx(shipSprite, ship.position, ship.rotation, 1, WHITE);
+		//DrawTextureEx(shipSprite, ship.position, ship.rotation, 1, WHITE);
 
 
 		DrawPixelV(mousePosition, RED);
@@ -71,3 +82,4 @@ int main()
 
 	CloseWindow();
 }
+

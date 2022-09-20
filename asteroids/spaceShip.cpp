@@ -9,5 +9,6 @@ Ship initShip(Ship &ship)
 	ship.radius = 25;
 	ship.lifes = 3;
 	ship.position = { (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 };
+	ship.speed = { 0,0 };
 	return ship;
 }
