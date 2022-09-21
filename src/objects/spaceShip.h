@@ -11,9 +11,9 @@ struct Ship
 	float rotation;
 	Vector2 position;
 	Vector2 speed;
-	
-	
 };
 
 Ship initShip(Ship& ship);
+
+void drawShip(Texture2D shipSprite);
 
