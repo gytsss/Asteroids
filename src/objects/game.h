@@ -29,3 +29,5 @@ void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButto
 void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons);
 
 void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons);
+
+void drawGame(Ship ship, Asteroid asteroid, Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton);

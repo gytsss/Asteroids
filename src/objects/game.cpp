@@ -18,6 +18,7 @@ void runGame()
 	Texture2D asteroidSprite = LoadTexture("res/asteroid.png");
 	Texture2D background = LoadTexture("res/background.png");
 	Texture2D pauseButton = LoadTexture("res/buttonOption.png");
+	Texture2D smallPauseButton = LoadTexture("res/buttonOption.png");
 	Texture2D quitButton = LoadTexture("res/buttonQuit.png");
 	Texture2D playButton = LoadTexture("res/buttonPlay.png");
 	Texture2D creditButton = LoadTexture("res/buttonCredit.png");
@@ -32,7 +33,6 @@ void runGame()
 	float vectorModule;
 	Vector2 normalizeDirect;
 
-	Color colorCircle = WHITE;
 	bool gameFinish = false;
 
 	Asteroid asteroid = initAsteroid(GetRandomValue(10, 500), GetRandomValue(10, 500), 25, 0);
@@ -71,11 +71,13 @@ void runGame()
 	creditButtons.height = creditButtons.height / 2;
 	smallCreditButtons.width = smallCreditButtons.width / 2;
 	smallCreditButtons.height = smallCreditButtons.height / 2;
+	smallPauseButton.width = smallPauseButton.width / 3;
+	smallPauseButton.height = smallPauseButton.height / 3;
 
-	
-	int currentScreen = Credits;
 
-	
+	int currentScreen = Menu;
+
+
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -104,17 +106,11 @@ void runGame()
 
 		if (CheckCollisionCircles(Vector2{ (float)asteroid.x , (float)asteroid.y }, asteroid.radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
 		{
-			colorCircle = RED;
 			ship.lifes--;
 			ship.position.x = GetScreenWidth() / 2;
 			ship.position.y = GetScreenHeight() / 2;
 			ship.speed = { 0,0 };
 		}
-		else
-			colorCircle = WHITE;
-
-		
-
 
 		BeginDrawing();
 
@@ -129,25 +125,34 @@ void runGame()
 
 			break;
 		case Game:
-			DrawCircleLines(ship.position.x, ship.position.y, ship.radius, colorCircle);
 
-			drawShip(shipSprite);
-			DrawCircleLines(asteroid.x, asteroid.y, asteroid.radius, WHITE);
-			drawAsteroid(asteroid, asteroidSprite);
-
-			DrawText(TextFormat("Lifes: %i", ship.lifes), GetScreenWidth() / 2 - 200, 10, 40, RED);
-			DrawTexture(pauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
+			drawGame(ship, asteroid, shipSprite, asteroidSprite, smallPauseButton);
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, (float)GetScreenHeight() - 45, (float)pauseButton.width , (float)pauseButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				pause = !pause;
+
+			if (pause)
+			{
+				DrawTexture(playButton, GetScreenWidth() / 2 - quitButton.width / 2, 275, WHITE);
+				DrawTexture(quitButton, GetScreenWidth() / 2 - quitButton.width / 2, 425, WHITE);
+
+				if (CheckCollisionPointRec(mousePosition, Rectangle{ (float)GetScreenWidth() / 2 - playButton.width / 2, 275, (float)playButton.width , (float)quitButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+					pause = !pause;
+				if (CheckCollisionPointRec(mousePosition, Rectangle{ (float)GetScreenWidth() / 2 - quitButton.width / 2, 425, (float)quitButton.width , (float)quitButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+					currentScreen = Menu;
+
+			}
+
+
+
 			break;
 		case Options:
 			break;
 		case Credits:
-			
+
 			creditBoxes(currentScreen, creditButtons, smallCreditButtons);
 			drawCredits(font, creditButtons, smallCreditButtons);
-			
+
 			break;
 		case Quit:
 			gameFinish = true;
@@ -156,17 +161,7 @@ void runGame()
 			break;
 		}
 
-
-		if (pause)
-		{
-			DrawTexture(quitButton, GetScreenWidth() / 2 - quitButton.width / 2, 500, WHITE);
-
-		}
-
-
 		drawCursor(cursor, mousePosition);
-		DrawFPS(10, 10);
-
 		EndDrawing();
 	}
 
@@ -221,7 +216,7 @@ void drawCursor(Texture2D cursor, Vector2 mousePosition)
 		WHITE);
 }
 
-void menuBoxes(int &currentScreen, Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton)
+void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton)
 {
 	Rectangle menuBox1 = { -3, 350 , playButton.width, playButton.height };
 	Rectangle menuBox2 = { -3, 450 , pauseButton.width, pauseButton.height };
@@ -248,7 +243,7 @@ void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButto
 
 }
 
-void creditBoxes(int &currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons)
+void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons)
 {
 	Rectangle creditBox = { GetScreenWidth() / 2 - creditButtons.width / 2, 150, creditButtons.width, creditButtons.height };
 	Rectangle creditBox1 = { GetScreenWidth() / 2 - creditButtons.width / 2, 250, creditButtons.width, creditButtons.height };
@@ -274,5 +269,23 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ (float)GetScreenWidth() / 2 - 200  , 170 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 270 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, AQUA);
+}
+
+void drawGame(Ship ship, Asteroid asteroid, Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
+{
+	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
+
+	drawShip(shipSprite);
+	DrawCircleLines(asteroid.x, asteroid.y, asteroid.radius, WHITE);
+	drawAsteroid(asteroid, asteroidSprite);
+
+	DrawText(TextFormat("Lifes: %i", ship.lifes), GetScreenWidth() / 2 - 200, 10, 40, RED);
+	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
+
+
+	DrawFPS(10, 10);
+
+
 }
 
