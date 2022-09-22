@@ -7,6 +7,8 @@
 
 extern Ship ship;
 
+extern Asteroid bigAsteroid[15];
+
 void runGame()
 {
 	HideCursor();
@@ -35,28 +37,7 @@ void runGame()
 
 	bool gameFinish = false;
 
-	Asteroid asteroid = initAsteroid(GetRandomValue(10, 500), GetRandomValue(10, 500), 25, 0);
 
-	asteroid.speed = { (float)GetRandomValue(70, 200), (float)GetRandomValue(70, 200) };
-
-	int randomSpeedX;
-	int randomSpeedY;
-
-	do
-	{
-		randomSpeedX = GetRandomValue(-200, 200);
-
-	} while (randomSpeedX > -70 && randomSpeedX < 70);
-
-	do
-	{
-		randomSpeedY = GetRandomValue(-200, 200);
-
-	} while (randomSpeedY >= -70 && randomSpeedY <= 70);
-
-
-	asteroid.speed.x = randomSpeedX;
-	asteroid.speed.y = randomSpeedY;
 
 	bool pause = false;
 
@@ -75,8 +56,13 @@ void runGame()
 	smallPauseButton.height = smallPauseButton.height / 3;
 
 
-	int currentScreen = Menu;
+	for (int i = 0; i < 10; i++)
+	{
+		initAsteroid(bigAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 25, 0);
 
+	}
+
+	int currentScreen = Menu;
 
 
 	while (!WindowShouldClose() && !gameFinish)
@@ -93,23 +79,30 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
-		teleportationBox(ship, shipSprite, asteroid, asteroidSprite);
+		teleportationBox(ship, shipSprite, bigAsteroid, asteroidSprite);
 
 		if (!pause && currentScreen == Game)
 		{
 			input(ship, normalizeDirect);
 
 			ship.rotation = angle;
-			asteroid.x += asteroid.speed.x * GetFrameTime();
-			asteroid.y += asteroid.speed.y * GetFrameTime();
+			for (int i = 0; i < 10; i++)
+			{
+				bigAsteroid[i].x += bigAsteroid[i].speed.x * GetFrameTime();
+				bigAsteroid[i].y += bigAsteroid[i].speed.y * GetFrameTime();
+			}
 		}
 
-		if (CheckCollisionCircles(Vector2{ (float)asteroid.x , (float)asteroid.y }, asteroid.radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
+		for (int i = 0; i < 10; i++)
 		{
-			ship.lifes--;
-			ship.position.x = GetScreenWidth() / 2;
-			ship.position.y = GetScreenHeight() / 2;
-			ship.speed = { 0,0 };
+			if (CheckCollisionCircles(Vector2{ (float)bigAsteroid[i].x , (float)bigAsteroid[i].y }, bigAsteroid[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
+			{
+				ship.lifes--;
+				ship.position.x = GetScreenWidth() / 2;
+				ship.position.y = GetScreenHeight() / 2;
+				ship.speed = { 0,0 };
+			}
+
 		}
 
 		BeginDrawing();
@@ -126,7 +119,7 @@ void runGame()
 			break;
 		case Game:
 
-			drawGame(ship, asteroid, shipSprite, asteroidSprite, smallPauseButton);
+			drawGame(ship, bigAsteroid, shipSprite, asteroidSprite, smallPauseButton);
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, (float)GetScreenHeight() - 45, (float)pauseButton.width , (float)pauseButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				pause = !pause;
@@ -142,8 +135,6 @@ void runGame()
 					currentScreen = Menu;
 
 			}
-
-
 
 			break;
 		case Options:
@@ -182,7 +173,7 @@ void input(Ship& ship, Vector2& normalizeDirect)
 
 }
 
-void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid& asteroid, Texture2D asteroidSprite)
+void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid bigAsteroid[], Texture2D asteroidSprite)
 {
 	if (ship.position.x > GetScreenWidth() + shipSprite.width - 5)
 		ship.position.x = -4;
@@ -194,15 +185,18 @@ void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid& asteroid, Text
 	if (ship.position.y < 0 - shipSprite.height + 5)
 		ship.position.y = GetScreenHeight() + 4;
 
-	if (asteroid.x > GetScreenWidth() + shipSprite.width / 2)
-		asteroid.x = 0;
-	if (asteroid.x < 0 - shipSprite.width / 2)
-		asteroid.x = GetScreenWidth();
+	for (int i = 0; i < 10; i++)
+	{
+		if (bigAsteroid[i].x > GetScreenWidth() + shipSprite.width / 2)
+			bigAsteroid[i].x = 0;
+		if (bigAsteroid[i].x < 0 - shipSprite.width / 2)
+			bigAsteroid[i].x = GetScreenWidth();
 
-	if (asteroid.y > GetScreenHeight() + shipSprite.height / 2)
-		asteroid.y = 0;
-	if (asteroid.y < 0 - shipSprite.height / 2)
-		asteroid.y = GetScreenHeight();
+		if (bigAsteroid[i].y > GetScreenHeight() + shipSprite.height / 2)
+			bigAsteroid[i].y = 0;
+		if (bigAsteroid[i].y < 0 - shipSprite.height / 2)
+			bigAsteroid[i].y = GetScreenHeight();
+	}
 
 }
 
@@ -272,13 +266,16 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, AQUA);
 }
 
-void drawGame(Ship ship, Asteroid asteroid, Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
+void drawGame(Ship ship, Asteroid bigAsteroid[10], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
 {
 	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
 
 	drawShip(shipSprite);
-	DrawCircleLines(asteroid.x, asteroid.y, asteroid.radius, WHITE);
-	drawAsteroid(asteroid, asteroidSprite);
+	for (int i = 0; i < 10; i++)
+	{
+		DrawCircleLines(bigAsteroid[i].x, bigAsteroid[i].y, bigAsteroid[i].radius, WHITE);
+		drawAsteroid(asteroidSprite, i);
+	}
 
 	DrawText(TextFormat("Lifes: %i", ship.lifes), GetScreenWidth() / 2 - 200, 10, 40, RED);
 	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);

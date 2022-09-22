@@ -20,6 +20,6 @@ struct Asteroid
 	AsteroidSize size;
 };
 
-Asteroid initAsteroid(int x, int y, int radius, float rotation);
+Asteroid initAsteroid(Asteroid &asteroid,int x, int y, int radius, float rotation);
 
-void drawAsteroid(Asteroid& asteroid, Texture2D asteroidSprite);
+void drawAsteroid( Texture2D asteroidSprite, int i);
