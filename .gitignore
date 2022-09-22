@@ -1,3 +1,7 @@
-*.vs
-*.debug
+*.vs/
+*Debug/
+*Asteroids/Debug/
+*Asteroids/x64/
+*lib/
+       
 
