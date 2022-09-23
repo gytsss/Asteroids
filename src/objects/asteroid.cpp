@@ -1,11 +1,24 @@
 #include "asteroid.h"
 
-Asteroid bigAsteroid[10];
+Asteroid bigAsteroid[maxBigAsteroids];
+Asteroid mediumAsteroid[maxMediumAsteroids];
+Asteroid smallAsteroid[maxSmallAsteroids];
+Asteroid asteroids[maxAsteroids];
 
-Asteroid initAsteroid(Asteroid &asteroid, int x, int y, int radius, float rotation)
+Asteroid initAsteroid(Asteroid& asteroid, int x, int y, float rotation, AsteroidSize size)
 {
-	asteroid = { x, y, radius, rotation };
+	asteroid = { x, y };
+	asteroid.rotation = rotation;
 	asteroid.speed = { (float)GetRandomValue(70, 200), (float)GetRandomValue(70, 200) };
+	asteroid.size = size;
+
+	if (asteroid.size == Small)
+		asteroid.radius = 15;
+	if (asteroid.size == Medium)
+		asteroid.radius = 28;
+	if (asteroid.size == Big)
+		asteroid.radius = 40;
+
 
 	int randomSpeedX;
 	int randomSpeedY;
@@ -26,15 +39,42 @@ Asteroid initAsteroid(Asteroid &asteroid, int x, int y, int radius, float rotati
 	asteroid.speed.x = randomSpeedX;
 	asteroid.speed.y = randomSpeedY;
 
+	asteroid.isActive = true;
 	return asteroid;
 }
 
-void drawAsteroid( Texture2D asteroidSprite, int i)
+void drawAsteroid(Texture2D asteroidSprite, int i)
 {
-	DrawTexturePro(asteroidSprite,
-		Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
-		Rectangle{ (float)bigAsteroid[i].x, (float)bigAsteroid[i].y, 50, 50 },
-		Vector2{ 50 / 2, 50 / 2 },
-		bigAsteroid[i].rotation,
-		WHITE);
+	for (int i = 0; i < maxAsteroids; i++)
+	{
+
+		if (asteroids[i].size == Big)
+		{
+			DrawTexturePro(asteroidSprite,
+				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
+				Rectangle{ (float)asteroids[i].x, (float)asteroids[i].y, 100, 100 },
+				Vector2{ 100 / 2, 100 / 2 },
+				asteroids[i].rotation,
+				WHITE);
+		}
+		else if (asteroids[i].size == Medium)
+		{
+			DrawTexturePro(asteroidSprite,
+				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
+				Rectangle{ (float)asteroids[i].x, (float)asteroids[i].y, 53, 53 },
+				Vector2{ 53 / 2, 53 / 2 },
+				asteroids[i].rotation,
+				WHITE);
+		}
+		else if (asteroids[i].size == Small)
+		{
+			DrawTexturePro(asteroidSprite,
+				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
+				Rectangle{ (float)asteroids[i].x, (float)asteroids[i].y, 30, 30 },
+				Vector2{ 30 / 2, 30 / 2 },
+				asteroids[i].rotation,
+				WHITE);
+		}
+	}
+	
 }

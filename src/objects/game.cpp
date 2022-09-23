@@ -7,7 +7,10 @@
 
 extern Ship ship;
 
-extern Asteroid bigAsteroid[15];
+extern Asteroid bigAsteroid[maxBigAsteroids];
+extern Asteroid mediumAsteroid[maxMediumAsteroids];
+extern Asteroid smallAsteroid[maxSmallAsteroids];
+extern Asteroid asteroids[maxAsteroids];
 
 void runGame()
 {
@@ -28,6 +31,7 @@ void runGame()
 	Texture2D smallCreditButtons = LoadTexture("res/buttonCredits.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
+	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
 
 
 	Vector2 mousePosition;
@@ -36,8 +40,6 @@ void runGame()
 	Vector2 normalizeDirect;
 
 	bool gameFinish = false;
-
-
 
 	bool pause = false;
 
@@ -56,10 +58,36 @@ void runGame()
 	smallPauseButton.height = smallPauseButton.height / 3;
 
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		initAsteroid(bigAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 25, 0);
+		initAsteroid(bigAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 0, Big);
+	}
+	for (int i = 0; i < maxMediumAsteroids; i++)
+	{
+		initAsteroid(mediumAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 0, Medium);
+	}
 
+	for (int i = 0; i < maxSmallAsteroids; i++)
+	{
+		initAsteroid(smallAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 0, Small);
+	}
+
+	int countAsteroids = 0;
+	for (int i = 0; i < maxBigAsteroids; i++)
+	{
+		asteroids[countAsteroids] = bigAsteroid[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxMediumAsteroids; i++)
+	{
+		asteroids[countAsteroids] = mediumAsteroid[i];
+		countAsteroids++;
+
+	}
+	for (int i = 0; i < maxSmallAsteroids; i++)
+	{
+		asteroids[countAsteroids] = smallAsteroid[i];
+		countAsteroids++;
 	}
 
 	int currentScreen = Menu;
@@ -79,23 +107,24 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
-		teleportationBox(ship, shipSprite, bigAsteroid, asteroidSprite);
+		teleportationBox(ship, shipSprite, asteroids, asteroidSprite);
 
 		if (!pause && currentScreen == Game)
 		{
 			input(ship, normalizeDirect);
-
 			ship.rotation = angle;
-			for (int i = 0; i < 10; i++)
+
+			for (int i = 0; i < maxAsteroids; i++)
 			{
-				bigAsteroid[i].x += bigAsteroid[i].speed.x * GetFrameTime();
-				bigAsteroid[i].y += bigAsteroid[i].speed.y * GetFrameTime();
+				asteroids[i].x += asteroids[i].speed.x * GetFrameTime();
+				asteroids[i].y += asteroids[i].speed.y * GetFrameTime();
+				asteroids[i].rotation++;
 			}
 		}
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < maxAsteroids; i++)
 		{
-			if (CheckCollisionCircles(Vector2{ (float)bigAsteroid[i].x , (float)bigAsteroid[i].y }, bigAsteroid[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
+			if (CheckCollisionCircles(Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
 			{
 				ship.lifes--;
 				ship.position.x = GetScreenWidth() / 2;
@@ -104,6 +133,11 @@ void runGame()
 			}
 
 		}
+
+		if (checkShipDead())
+			ship.isAlive = false;
+
+
 
 		BeginDrawing();
 
@@ -114,12 +148,12 @@ void runGame()
 		case Menu:
 
 			menuBoxes(currentScreen, playButton, pauseButton, creditButton, quitButton);
-			drawMenu(playButton, pauseButton, creditButton, quitButton);
+			drawMenu(playButton, pauseButton, creditButton, quitButton, titleFont);
 
 			break;
 		case Game:
 
-			drawGame(ship, bigAsteroid, shipSprite, asteroidSprite, smallPauseButton);
+			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton);
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, (float)GetScreenHeight() - 45, (float)pauseButton.width , (float)pauseButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				pause = !pause;
@@ -173,7 +207,7 @@ void input(Ship& ship, Vector2& normalizeDirect)
 
 }
 
-void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid bigAsteroid[], Texture2D asteroidSprite)
+void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid asteroid[maxAsteroids], Texture2D asteroidSprite)
 {
 	if (ship.position.x > GetScreenWidth() + shipSprite.width - 5)
 		ship.position.x = -4;
@@ -185,17 +219,17 @@ void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid bigAsteroid[], 
 	if (ship.position.y < 0 - shipSprite.height + 5)
 		ship.position.y = GetScreenHeight() + 4;
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < maxAsteroids; i++)
 	{
-		if (bigAsteroid[i].x > GetScreenWidth() + shipSprite.width / 2)
-			bigAsteroid[i].x = 0;
-		if (bigAsteroid[i].x < 0 - shipSprite.width / 2)
-			bigAsteroid[i].x = GetScreenWidth();
+		if (asteroids[i].x > GetScreenWidth() + shipSprite.width / 2)
+			asteroids[i].x = 0;
+		if (asteroids[i].x < 0 - shipSprite.width / 2)
+			asteroids[i].x = GetScreenWidth();
 
-		if (bigAsteroid[i].y > GetScreenHeight() + shipSprite.height / 2)
-			bigAsteroid[i].y = 0;
-		if (bigAsteroid[i].y < 0 - shipSprite.height / 2)
-			bigAsteroid[i].y = GetScreenHeight();
+		if (asteroids[i].y > GetScreenHeight() + shipSprite.height / 2)
+			asteroids[i].y = 0;
+		if (asteroids[i].y < 0 - shipSprite.height / 2)
+			asteroids[i].y = GetScreenHeight();
 	}
 
 }
@@ -228,12 +262,18 @@ void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, 
 		currentScreen = Quit;
 }
 
-void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton)
+void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont)
 {
+	int titleLegth = MeasureText("Remasteroids", titleFont.baseSize) / 2;
+
 	DrawTexture(playButton, -3, 350, WHITE);
 	DrawTexture(pauseButton, -3, 450, WHITE);
 	DrawTexture(creditButton, -3, 550, WHITE);
 	DrawTexture(quitButton, -3, 650, WHITE);
+
+	DrawRectangleLines((float)GetScreenWidth() / 2 - titleLegth - 110, 90, titleLegth + 550, 90, WHITE);
+
+	DrawTextEx(titleFont, "Remasteroids", Vector2{ (float)GetScreenWidth() / 2 - titleLegth - 100, 100 }, titleFont.baseSize, 0, WHITE);
 
 }
 
@@ -266,14 +306,14 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, AQUA);
 }
 
-void drawGame(Ship ship, Asteroid bigAsteroid[10], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
+void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
 {
-	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
+	//DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
 
 	drawShip(shipSprite);
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < maxAsteroids; i++)
 	{
-		DrawCircleLines(bigAsteroid[i].x, bigAsteroid[i].y, bigAsteroid[i].radius, WHITE);
+		//DrawCircleLines(asteroids[i].x, asteroids[i].y, asteroids[i].radius, WHITE);
 		drawAsteroid(asteroidSprite, i);
 	}
 

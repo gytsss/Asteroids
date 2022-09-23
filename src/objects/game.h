@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include "raylib.h"
 #include "spaceShip.h"
 #include "asteroid.h"
@@ -18,16 +19,16 @@ void runGame();
 
 void input(Ship &ship, Vector2 &normalizeDirect);
 
-void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid bigAsteroid[], Texture2D asteroidSprite);
+void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid asteroids[maxAsteroids], Texture2D asteroidSprite);
 
 void drawCursor(Texture2D cursor, Vector2 mousePosition);
 
 void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton);
 
-void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton);
+void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont);
 
 void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons);
 
 void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons);
 
-void drawGame(Ship ship, Asteroid bigAsteroid[10], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton);
+void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton);
