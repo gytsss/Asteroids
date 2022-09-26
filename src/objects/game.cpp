@@ -34,6 +34,7 @@ void runGame()
 	Texture2D smallCreditButtons = LoadTexture("res/buttonCredits.png");
 	Texture2D leftClick = LoadTexture("res/leftclick.png");
 	Texture2D rightClick = LoadTexture("res/rightclick.png");
+	Texture2D bullet = LoadTexture("res/laserBullet1.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
@@ -121,6 +122,12 @@ void runGame()
 
 		teleportationBox(ship, shipSprite, asteroids, asteroidSprite);
 
+		for (int i = 0; i < maxBullets; i++)
+		{
+			if (bullets[i].x > GetScreenWidth() || bullets[i].x < 0 || bullets[i].y < 0 || bullets[i].y > GetScreenHeight())
+				bullets[i].isActive = false;
+		}
+
 
 		if (!pause && currentScreen == Game)
 		{
@@ -188,7 +195,14 @@ void runGame()
 			for (int i = 0; i < maxBullets; i++)
 			{
 				if (bullets[i].isActive)
-					DrawCircle(bullets[i].x, bullets[i].y, bullets[i].radius, RED);
+				{
+					DrawTexturePro(bullet,
+						Rectangle{ 0, 0, (float)bullet.width ,(float)bullet.height },
+						Rectangle{ (float)bullets[i].x , (float)bullets[i].y, 70, 70 },
+						Vector2{ 70 / 2, 70 / 2 },
+						bullets[i].rotation,
+						WHITE);
+				}
 			}
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, (float)GetScreenHeight() - 45, (float)pauseButton.width , (float)pauseButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -333,12 +347,15 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	Rectangle creditBox1 = { GetScreenWidth() / 2 - creditButtons.width / 2, 250, creditButtons.width, creditButtons.height };
 	Rectangle creditBox2 = { -3, (float)GetScreenHeight() - 70, smallCreditButtons.width, smallCreditButtons.height };
 	Rectangle creditBox3 = { GetScreenWidth() / 2 - creditButtons.width / 2, 350, creditButtons.width, creditButtons.height };
+	Rectangle creditBox4 = { GetScreenWidth() / 2 - creditButtons.width / 2, 450, creditButtons.width, creditButtons.height };
 
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox)))
 		OpenURL("https://opengameart.org/content/a-layered-asteroid-rock");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
 		OpenURL("https://opengameart.org/content/square-gaming-font-free");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
+		//OpenURL("https://www.flaticon.com/free-icon/right-click_3645851?term=right%20click&page=1&position=1&page=1&position=1&related_id=3645851&origin=search");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
 		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
 		currentScreen = Menu;
@@ -352,12 +369,14 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 150, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 250, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 350, WHITE);
+	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 450, WHITE);
 	DrawTextureEx(smallCreditButtons, Vector2{ -3, (float)GetScreenHeight() - 70 }, 0, 1, WHITE);
 
 
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ (float)GetScreenWidth() / 2 - 200  , 170 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ (float)GetScreenWidth() / 2 - 135  , 270 }, font.baseSize, 0, AQUA);
-	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 370 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Mouse Icon by Smashicons"), Vector2{ (float)GetScreenWidth() / 2 - 210 , 370 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 470 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, WHITE);
 }
 
@@ -387,11 +406,11 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score)
 {
-	DrawText(TextFormat("Score: %f00", score), 500, 10, 40, WHITE);
+	DrawText(TextFormat("Score: %f", score), 500, 10, 40, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
 	{
-		DrawTexture(shipSprite, 170 + i * 50, 5, WHITE);
+		DrawTexture(shipSprite, 180 + i * 50, 5, WHITE);
 	}
 
 	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
@@ -403,12 +422,9 @@ void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite,
 		drawAsteroid(asteroidSprite, i);
 	}
 
-	
 	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
 
-
 	DrawFPS(10, 10);
-
 
 }
 
