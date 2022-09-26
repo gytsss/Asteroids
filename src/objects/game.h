@@ -31,4 +31,8 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 
 void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons);
 
-void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton);
+void optionsBoxes(int &currentScreen, Texture2D smallCreditButtons);
+
+void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick);
+
+void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score);

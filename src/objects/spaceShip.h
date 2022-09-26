@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "asteroid.h"
+#include "spaceShip.h"
 
 
 struct Ship

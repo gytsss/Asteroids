@@ -9,7 +9,6 @@ Asteroid initAsteroid(Asteroid& asteroid, int x, int y, float rotation, Asteroid
 {
 	asteroid = { x, y };
 	asteroid.rotation = rotation;
-	asteroid.speed = { (float)GetRandomValue(70, 200), (float)GetRandomValue(70, 200) };
 	asteroid.size = size;
 
 	if (asteroid.size == Small)
@@ -20,7 +19,7 @@ Asteroid initAsteroid(Asteroid& asteroid, int x, int y, float rotation, Asteroid
 		asteroid.radius = 40;
 
 
-	int randomSpeedX;
+	/*int randomSpeedX;
 	int randomSpeedY;
 
 	do
@@ -33,11 +32,13 @@ Asteroid initAsteroid(Asteroid& asteroid, int x, int y, float rotation, Asteroid
 	{
 		randomSpeedY = GetRandomValue(-200, 200);
 
-	} while (randomSpeedY >= -70 && randomSpeedY <= 70);
+	} while (randomSpeedY >= -70 && randomSpeedY <= 70);*/
 
 
-	asteroid.speed.x = randomSpeedX;
-	asteroid.speed.y = randomSpeedY;
+	/*asteroid.speed.x = randomSpeedX;
+	asteroid.speed.y = randomSpeedY;*/
+
+	asteroid.speed = { 0,0 };
 
 	asteroid.isActive = true;
 	return asteroid;

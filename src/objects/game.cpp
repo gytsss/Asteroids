@@ -3,6 +3,7 @@
 #include "game.h"
 #include "spaceShip.h"
 #include "asteroid.h"
+#include "bullets.h"
 
 
 extern Ship ship;
@@ -11,6 +12,8 @@ extern Asteroid bigAsteroid[maxBigAsteroids];
 extern Asteroid mediumAsteroid[maxMediumAsteroids];
 extern Asteroid smallAsteroid[maxSmallAsteroids];
 extern Asteroid asteroids[maxAsteroids];
+
+extern Bullet bullets[maxBullets];
 
 void runGame()
 {
@@ -29,6 +32,8 @@ void runGame()
 	Texture2D creditButton = LoadTexture("res/buttonCredit.png");
 	Texture2D creditButtons = LoadTexture("res/buttonCredits.png");
 	Texture2D smallCreditButtons = LoadTexture("res/buttonCredits.png");
+	Texture2D leftClick = LoadTexture("res/leftclick.png");
+	Texture2D rightClick = LoadTexture("res/rightclick.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
@@ -56,6 +61,10 @@ void runGame()
 	smallCreditButtons.height = smallCreditButtons.height / 2;
 	smallPauseButton.width = smallPauseButton.width / 3;
 	smallPauseButton.height = smallPauseButton.height / 3;
+	leftClick.width = leftClick.width / 3;
+	leftClick.height = leftClick.height / 3;
+	rightClick.width = rightClick.width / 3;
+	rightClick.height = rightClick.height / 3;
 
 
 	for (int i = 0; i < maxBigAsteroids; i++)
@@ -66,7 +75,6 @@ void runGame()
 	{
 		initAsteroid(mediumAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 0, Medium);
 	}
-
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
 		initAsteroid(smallAsteroid[i], GetRandomValue(10, 500), GetRandomValue(10, 500), 0, Small);
@@ -90,11 +98,15 @@ void runGame()
 		countAsteroids++;
 	}
 
+	int currentBullets = 0;
+
 	int currentScreen = Menu;
 
+	float score = 0;
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
+
 		mousePosition = GetMousePosition();
 
 		Vector2 vectorDirection = { mousePosition.x - ship.position.x,  mousePosition.y - ship.position.y };
@@ -109,6 +121,7 @@ void runGame()
 
 		teleportationBox(ship, shipSprite, asteroids, asteroidSprite);
 
+
 		if (!pause && currentScreen == Game)
 		{
 			input(ship, normalizeDirect);
@@ -120,11 +133,20 @@ void runGame()
 				asteroids[i].y += asteroids[i].speed.y * GetFrameTime();
 				asteroids[i].rotation++;
 			}
+
+			for (int i = 0; i < maxBullets; i++)
+			{
+				if (bullets[i].isActive)
+				{
+					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 2;
+					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 2;
+				}
+			}
 		}
 
 		for (int i = 0; i < maxAsteroids; i++)
 		{
-			if (CheckCollisionCircles(Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius))
+			if (CheckCollisionCircles(Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius) && ship.isAlive)
 			{
 				ship.lifes--;
 				ship.position.x = GetScreenWidth() / 2;
@@ -136,7 +158,6 @@ void runGame()
 
 		if (checkShipDead())
 			ship.isAlive = false;
-
 
 
 		BeginDrawing();
@@ -153,7 +174,22 @@ void runGame()
 			break;
 		case Game:
 
-			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton);
+			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton, score);
+
+
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			{
+				bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
+				bullets[currentBullets].isActive = true;
+				currentBullets++;
+			}
+
+
+			for (int i = 0; i < maxBullets; i++)
+			{
+				if (bullets[i].isActive)
+					DrawCircle(bullets[i].x, bullets[i].y, bullets[i].radius, RED);
+			}
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, (float)GetScreenHeight() - 45, (float)pauseButton.width , (float)pauseButton.height }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				pause = !pause;
@@ -172,6 +208,8 @@ void runGame()
 
 			break;
 		case Options:
+			optionsBoxes(currentScreen, smallCreditButtons);
+			drawOptions(smallCreditButtons, font, titleFont, leftClick, rightClick);
 			break;
 		case Credits:
 
@@ -191,7 +229,19 @@ void runGame()
 	}
 
 	UnloadTexture(shipSprite);
+	UnloadTexture(asteroidSprite);
+	UnloadTexture(background);
+	UnloadTexture(pauseButton);
+	UnloadTexture(smallPauseButton);
+	UnloadTexture(quitButton);
+	UnloadTexture(playButton);
+	UnloadTexture(creditButton);
+	UnloadTexture(creditButtons);
+	UnloadTexture(smallCreditButtons);
 	UnloadTexture(cursor);
+
+	UnloadFont(font);
+	UnloadFont(titleFont);
 }
 
 void input(Ship& ship, Vector2& normalizeDirect)
@@ -282,10 +332,13 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	Rectangle creditBox = { GetScreenWidth() / 2 - creditButtons.width / 2, 150, creditButtons.width, creditButtons.height };
 	Rectangle creditBox1 = { GetScreenWidth() / 2 - creditButtons.width / 2, 250, creditButtons.width, creditButtons.height };
 	Rectangle creditBox2 = { -3, (float)GetScreenHeight() - 70, smallCreditButtons.width, smallCreditButtons.height };
+	Rectangle creditBox3 = { GetScreenWidth() / 2 - creditButtons.width / 2, 350, creditButtons.width, creditButtons.height };
 
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox)))
 		OpenURL("https://opengameart.org/content/a-layered-asteroid-rock");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
+		OpenURL("https://opengameart.org/content/square-gaming-font-free");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
 		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
 		currentScreen = Menu;
@@ -298,26 +351,59 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 150, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 250, WHITE);
+	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 350, WHITE);
 	DrawTextureEx(smallCreditButtons, Vector2{ -3, (float)GetScreenHeight() - 70 }, 0, 1, WHITE);
 
 
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ (float)GetScreenWidth() / 2 - 200  , 170 }, font.baseSize, 0, AQUA);
-	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 270 }, font.baseSize, 0, AQUA);
-	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ (float)GetScreenWidth() / 2 - 135  , 270 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 370 }, font.baseSize, 0, AQUA);
+	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, WHITE);
 }
 
-void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton)
+void optionsBoxes(int& currentScreen, Texture2D smallCreditButtons)
 {
-	//DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
+	Rectangle optionsBox = { -3, (float)GetScreenHeight() - 70, smallCreditButtons.width, smallCreditButtons.height };
+
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), optionsBox)))
+		currentScreen = Menu;
+}
+
+void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick)
+{
+	DrawTextureEx(smallCreditButtons, Vector2{ -3, (float)GetScreenHeight() - 70 }, 0, 1, WHITE);
+	DrawTexture(leftClick, 280, 500, WHITE);
+	DrawTexture(rightClick, 580, 500, WHITE);
+
+
+	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, WHITE);
+	DrawTextEx(titleFont, TextFormat("Remasteroids is a remastered\nversion of the classic game\n'Asteroids'. The objective of the\ngame is to shoot and destroy\nasteroids avoiding colliding with\nthe fragments that detach from\nthem."),
+		Vector2{ 70, 50 },
+		font.baseSize, 0, WHITE);
+	DrawTextEx(titleFont, TextFormat("Shoot"), Vector2{ 287, 450 }, font.baseSize, 0, RED);
+	DrawTextEx(titleFont, TextFormat("Accelerate"), Vector2{ 525, 450 }, font.baseSize, 0, RED);
+
+}
+
+void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score)
+{
+	DrawText(TextFormat("Score: %f00", score), 500, 10, 40, WHITE);
+
+	for (int i = 0; i < ship.lifes; i++)
+	{
+		DrawTexture(shipSprite, 170 + i * 50, 5, WHITE);
+	}
+
+	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
 
 	drawShip(shipSprite);
 	for (int i = 0; i < maxAsteroids; i++)
 	{
-		//DrawCircleLines(asteroids[i].x, asteroids[i].y, asteroids[i].radius, WHITE);
+		DrawCircleLines(asteroids[i].x, asteroids[i].y, asteroids[i].radius, WHITE);
 		drawAsteroid(asteroidSprite, i);
 	}
 
-	DrawText(TextFormat("Lifes: %i", ship.lifes), GetScreenWidth() / 2 - 200, 10, 40, RED);
+	
 	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
 
 

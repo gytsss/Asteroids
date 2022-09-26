@@ -144,15 +144,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bullets.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\objects\asteroid.cpp" />
+    <ClCompile Include="src\objects\bullets.cpp" />
     <ClCompile Include="src\objects\game.cpp" />
     <ClCompile Include="src\objects\spaceShip.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bullets.h" />
     <ClInclude Include="src\objects\asteroid.h" />
+    <ClInclude Include="src\objects\bullets.h" />
     <ClInclude Include="src\objects\game.h" />
     <ClInclude Include="src\objects\spaceShip.h" />
   </ItemGroup>

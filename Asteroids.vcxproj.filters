@@ -27,7 +27,7 @@
     <ClCompile Include="src\objects\asteroid.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
-    <ClCompile Include="bullets.cpp">
+    <ClCompile Include="src\objects\bullets.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="src\objects\asteroid.h">
       <Filter>Archivos de recursos</Filter>
     </ClInclude>
-    <ClInclude Include="bullets.h">
+    <ClInclude Include="src\objects\bullets.h">
       <Filter>Archivos de recursos</Filter>
     </ClInclude>
   </ItemGroup>
