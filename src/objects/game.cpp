@@ -146,8 +146,8 @@ void runGame()
 			{
 				if (bullets[i].isActive)
 				{
-					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 3;
-					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 3;
+					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 150;
+					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 150;
 				}
 			}
 		}

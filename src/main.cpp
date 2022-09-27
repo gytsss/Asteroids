@@ -4,10 +4,10 @@
 
 int main()
 {
-	float screenWidht = 1024;
+	float screenWidth = 1024;
 	float screenHeight = 768;
 
-	InitWindow(screenWidht, screenHeight, "Asteroids");
+	InitWindow(screenWidth, screenHeight, "Asteroids");
 	SetWindowState(FLAG_VSYNC_HINT);
 	
 	runGame();

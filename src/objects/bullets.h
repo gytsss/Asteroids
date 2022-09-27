@@ -6,8 +6,8 @@ const int maxBullets = 15;
 
 struct Bullet
 {
-	int x;
-	int y;
+	float x;
+	float y;
 	float radius;
 	float rotation;
 	bool isActive;
