@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "spaceShip.h"
 
-const int maxBullets = 50;
+const int maxBullets = 15;
 
 struct Bullet
 {

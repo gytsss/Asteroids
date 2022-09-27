@@ -46,10 +46,8 @@ Asteroid initAsteroid(Asteroid& asteroid, int x, int y, float rotation, Asteroid
 
 void drawAsteroid(Texture2D asteroidSprite, int i)
 {
-	for (int i = 0; i < maxAsteroids; i++)
-	{
-
-		if (asteroids[i].size == Big)
+	
+		if (asteroids[i].size == Big && asteroids[i].isActive)
 		{
 			DrawTexturePro(asteroidSprite,
 				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
@@ -58,7 +56,7 @@ void drawAsteroid(Texture2D asteroidSprite, int i)
 				asteroids[i].rotation,
 				WHITE);
 		}
-		else if (asteroids[i].size == Medium)
+		else if (asteroids[i].size == Medium && asteroids[i].isActive)
 		{
 			DrawTexturePro(asteroidSprite,
 				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
@@ -67,7 +65,7 @@ void drawAsteroid(Texture2D asteroidSprite, int i)
 				asteroids[i].rotation,
 				WHITE);
 		}
-		else if (asteroids[i].size == Small)
+		else if (asteroids[i].size == Small && asteroids[i].isActive)
 		{
 			DrawTexturePro(asteroidSprite,
 				Rectangle{ 0, 0, (float)asteroidSprite.width ,(float)asteroidSprite.height },
@@ -76,6 +74,5 @@ void drawAsteroid(Texture2D asteroidSprite, int i)
 				asteroids[i].rotation,
 				WHITE);
 		}
-	}
 	
 }

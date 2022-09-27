@@ -34,7 +34,7 @@ void runGame()
 	Texture2D smallCreditButtons = LoadTexture("res/buttonCredits.png");
 	Texture2D leftClick = LoadTexture("res/leftclick.png");
 	Texture2D rightClick = LoadTexture("res/rightclick.png");
-	Texture2D bullet = LoadTexture("res/laserBullet1.png");
+	Texture2D bullet = LoadTexture("res/laserBullet.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
@@ -145,8 +145,8 @@ void runGame()
 			{
 				if (bullets[i].isActive)
 				{
-					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 2;
-					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 2;
+					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 3;
+					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 3;
 				}
 			}
 		}
@@ -159,6 +159,19 @@ void runGame()
 				ship.position.x = GetScreenWidth() / 2;
 				ship.position.y = GetScreenHeight() / 2;
 				ship.speed = { 0,0 };
+			}
+
+		}
+
+		for (int i = 0; i < maxAsteroids; i++)
+		{
+			for (int j = 0; j < maxBullets; j++)
+			{
+				if (CheckCollisionCircles(Vector2{ (float)bullets[j].x , (float)bullets[j].y }, bullets[j].radius, Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius) && asteroids[i].isActive)
+				{
+					asteroids[i].isActive = false;
+					bullets[j].isActive = false;
+				}
 			}
 
 		}
@@ -183,12 +196,16 @@ void runGame()
 
 			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton, score);
 
-
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 			{
+				if (currentBullets >= maxBullets)
+					currentBullets = 0;
+
 				bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
-				bullets[currentBullets].isActive = true;
 				currentBullets++;
+				std::cout << normalizeDirect.x << "\n";
+				std::cout << normalizeDirect.y << "\n";
+				
 			}
 
 
@@ -253,6 +270,7 @@ void runGame()
 	UnloadTexture(creditButtons);
 	UnloadTexture(smallCreditButtons);
 	UnloadTexture(cursor);
+	UnloadTexture(bullet);
 
 	UnloadFont(font);
 	UnloadFont(titleFont);
@@ -354,9 +372,9 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
 		OpenURL("https://opengameart.org/content/square-gaming-font-free");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
-		//OpenURL("https://www.flaticon.com/free-icon/right-click_3645851?term=right%20click&page=1&position=1&page=1&position=1&related_id=3645851&origin=search");
-	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
-		OpenURL("https://tgodd.itch.io/");
+
+		if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
+			OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
 		currentScreen = Menu;
 
@@ -375,7 +393,6 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ (float)GetScreenWidth() / 2 - 200  , 170 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ (float)GetScreenWidth() / 2 - 135  , 270 }, font.baseSize, 0, AQUA);
-	DrawTextEx(font, TextFormat("Mouse Icon by Smashicons"), Vector2{ (float)GetScreenWidth() / 2 - 210 , 370 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ (float)GetScreenWidth() / 2 - creditTextLenght , 470 }, font.baseSize, 0, AQUA);
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, (float)GetScreenHeight() - 50 }, font.baseSize, 0, WHITE);
 }
@@ -406,6 +423,7 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score)
 {
+	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
 	DrawText(TextFormat("Score: %f", score), 500, 10, 40, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
@@ -418,11 +436,14 @@ void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite,
 	drawShip(shipSprite);
 	for (int i = 0; i < maxAsteroids; i++)
 	{
-		DrawCircleLines(asteroids[i].x, asteroids[i].y, asteroids[i].radius, WHITE);
+		if (asteroids[i].isActive)
+		{
+			DrawCircleLines(asteroids[i].x, asteroids[i].y, asteroids[i].radius, WHITE);
+		}
 		drawAsteroid(asteroidSprite, i);
+
 	}
 
-	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
 
 	DrawFPS(10, 10);
 

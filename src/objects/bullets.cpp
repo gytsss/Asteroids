@@ -1,5 +1,6 @@
 #include "bullets.h"
 #include "spaceShip.h"
+#include "raymath.h"
 
 Bullet bullets[maxBullets];
 
@@ -9,12 +10,14 @@ Bullet initBullet(Bullet& bullet, Ship ship, Vector2 vectorDirection)
 	bullet.x = ship.position.x;
 	bullet.y = ship.position.y;
 	bullet.rotation = ship.rotation;
+	bullet.isActive = true;
 
-	float vectorModule = sqrt(pow(vectorDirection.x, 2) + pow(vectorDirection.y, 2));
-	Vector2 normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
+	Vector2 normalizeDirect = Vector2Normalize(vectorDirection);
 
-	bullet.speed.x = vectorDirection.x;
-	bullet.speed.y = vectorDirection.y;
+
+	bullet.speed.x += vectorDirection.x;
+	bullet.speed.y += vectorDirection.y;
+
 
 	return bullet;
 
