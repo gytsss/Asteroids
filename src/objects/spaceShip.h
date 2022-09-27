@@ -18,7 +18,7 @@ struct Ship
 
 Ship initShip(Ship& ship);
 
-void drawShip(Texture2D shipSprite);
+void drawShip(Texture2D shipSprite, Texture2D shipSpriteNitro);
 
 bool checkShipDead();
 

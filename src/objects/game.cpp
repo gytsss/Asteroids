@@ -22,6 +22,7 @@ void runGame()
 	initShip(ship);
 
 	Texture2D shipSprite = LoadTexture("res/bluespaceship.png");
+	Texture2D shipSpriteNitro = LoadTexture("res/bluespaceshipNitro.png");
 	Texture2D cursor = LoadTexture("res/cursor.png");
 	Texture2D asteroidSprite = LoadTexture("res/asteroid.png");
 	Texture2D background = LoadTexture("res/background.png");
@@ -153,7 +154,7 @@ void runGame()
 
 		for (int i = 0; i < maxAsteroids; i++)
 		{
-			if (CheckCollisionCircles(Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius) && ship.isAlive)
+			if (CheckCollisionCircles(Vector2{ (float)asteroids[i].x , (float)asteroids[i].y }, asteroids[i].radius, Vector2{ ship.position.x , ship.position.y }, ship.radius) && ship.isAlive && asteroids[i].isActive)
 			{
 				ship.lifes--;
 				ship.position.x = GetScreenWidth() / 2;
@@ -194,7 +195,7 @@ void runGame()
 			break;
 		case Game:
 
-			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton, score);
+			drawGame(ship, asteroids, shipSprite, asteroidSprite, smallPauseButton, score,  shipSpriteNitro);
 
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 			{
@@ -213,6 +214,8 @@ void runGame()
 			{
 				if (bullets[i].isActive)
 				{
+					DrawCircle(bullets[i].x, bullets[i].y, bullets[i].radius, RED);
+
 					DrawTexturePro(bullet,
 						Rectangle{ 0, 0, (float)bullet.width ,(float)bullet.height },
 						Rectangle{ (float)bullets[i].x , (float)bullets[i].y, 70, 70 },
@@ -282,6 +285,8 @@ void input(Ship& ship, Vector2& normalizeDirect)
 	{
 		ship.speed.x += normalizeDirect.x;
 		ship.speed.y += normalizeDirect.y;
+
+		
 	}
 
 	ship.position.x += ship.speed.x * GetFrameTime() * 5;
@@ -421,7 +426,7 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 }
 
-void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score)
+void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro)
 {
 	DrawTexture(smallPauseButton, -3, (float)GetScreenHeight() - 45, WHITE);
 	DrawText(TextFormat("Score: %f", score), 500, 10, 40, WHITE);
@@ -433,7 +438,7 @@ void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite,
 
 	DrawCircleLines(ship.position.x, ship.position.y, ship.radius, WHITE);
 
-	drawShip(shipSprite);
+	drawShip(shipSprite, shipSpriteNitro);
 	for (int i = 0; i < maxAsteroids; i++)
 	{
 		if (asteroids[i].isActive)

@@ -16,16 +16,32 @@ Ship initShip(Ship& ship)
 	return ship;
 }
 
-void drawShip(Texture2D shipSprite)
+void drawShip(Texture2D shipSprite, Texture2D shipSpriteNitro)
 {
 	if (ship.isAlive)
 	{
-		DrawTexturePro(shipSprite,
-			Rectangle{ 0, 0, (float)shipSprite.width,(float)shipSprite.height },
-			Rectangle{ ship.position.x, ship.position.y, (float)shipSprite.width, (float)shipSprite.height },
-			Vector2{ (float)shipSprite.width / 2,(float)shipSprite.height / 2 },
-			ship.rotation,
-			WHITE);
+		
+		if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
+		{
+			DrawTexturePro(shipSpriteNitro,
+				Rectangle{ 0, 0, (float)shipSprite.width,(float)shipSprite.height },
+				Rectangle{ ship.position.x, ship.position.y, (float)shipSprite.width, (float)shipSprite.height },
+				Vector2{ (float)shipSprite.width / 2,(float)shipSprite.height / 2 },
+				ship.rotation,
+				WHITE);
+		}
+		else
+		{
+
+			DrawTexturePro(shipSprite,
+				Rectangle{ 0, 0, (float)shipSprite.width,(float)shipSprite.height },
+				Rectangle{ ship.position.x, ship.position.y, (float)shipSprite.width, (float)shipSprite.height },
+				Vector2{ (float)shipSprite.width / 2,(float)shipSprite.height / 2 },
+				ship.rotation,
+				WHITE);
+		}
+
+
 
 	}
 }

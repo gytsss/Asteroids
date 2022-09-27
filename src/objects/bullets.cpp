@@ -15,8 +15,8 @@ Bullet initBullet(Bullet& bullet, Ship ship, Vector2 vectorDirection)
 	Vector2 normalizeDirect = Vector2Normalize(vectorDirection);
 
 
-	bullet.speed.x += vectorDirection.x;
-	bullet.speed.y += vectorDirection.y;
+	bullet.speed.x = normalizeDirect.x;
+	bullet.speed.y = normalizeDirect.y;
 
 
 	return bullet;
