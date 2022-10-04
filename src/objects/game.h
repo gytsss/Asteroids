@@ -17,9 +17,9 @@ enum Screen
 
 void runGame();
 
-void input(Ship &ship, Vector2 &normalizeDirect);
+void input( Vector2 normalizeDirect);
 
-void teleportationBox(Ship& ship, Texture2D shipSprite, Asteroid asteroids[maxAsteroids], Texture2D asteroidSprite);
+void teleportationBox(Texture2D shipSprite, Texture2D asteroidSprite);
 
 void drawCursor(Texture2D cursor, Vector2 mousePosition);
 
@@ -35,4 +35,4 @@ void optionsBoxes(int &currentScreen, Texture2D smallCreditButtons);
 
 void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick);
 
-void drawGame(Ship ship, Asteroid asteroids[maxAsteroids], Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro);
+void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro);

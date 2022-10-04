@@ -6,8 +6,8 @@
 
 struct Ship
 {
-	int x;
-	int y;
+	float x;
+	float y;
 	int radius;
 	int lifes;
 	float rotation;
@@ -16,7 +16,7 @@ struct Ship
 	Vector2 speed;
 };
 
-Ship initShip(Ship& ship);
+Ship initShip();
 
 void drawShip(Texture2D shipSprite, Texture2D shipSpriteNitro);
 

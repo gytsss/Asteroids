@@ -9,7 +9,7 @@ const int maxSmallAsteroids = 1;
 const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids;
 
 
-enum AsteroidSize
+enum class AsteroidSize
 {
 	Small,
 	Medium,
@@ -18,8 +18,8 @@ enum AsteroidSize
 
 struct Asteroid
 {
-	int x;
-	int y;
+	float x;
+	float y;
 	int radius;
 	float rotation;
 	bool isActive;
@@ -28,6 +28,6 @@ struct Asteroid
 	AsteroidSize size;
 };
 
-Asteroid initAsteroid(Asteroid &asteroid,int x, int y, float rotation, AsteroidSize size);
+Asteroid initAsteroid(Asteroid &asteroid,float x, float y, float rotation, AsteroidSize size);
 
 void drawAsteroid( Texture2D asteroidSprite, int i);
