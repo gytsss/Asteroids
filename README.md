@@ -1,1 +1,1 @@
-# Asteroids game made with Raylib for a university project.
+# Asteroids game made with Raylib for an university project.
