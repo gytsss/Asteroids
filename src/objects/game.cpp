@@ -11,6 +11,7 @@ extern Ship ship;
 extern Asteroid bigAsteroid[maxBigAsteroids];
 extern Asteroid mediumAsteroid[maxMediumAsteroids];
 extern Asteroid smallAsteroid[maxSmallAsteroids];
+extern Asteroid auxAsteroid[maxAuxAsteroids];
 extern Asteroid asteroids[maxAsteroids];
 
 extern Bullet bullets[maxBullets];
@@ -86,6 +87,11 @@ void runGame()
 	{
 		initAsteroid(smallAsteroid[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Small);
 	}
+	for (int i = 0; i < maxAuxAsteroids; i++)
+	{
+		auxAsteroid[i].isActive = false;
+
+	}
 
 	int countAsteroids = 0;
 	for (int i = 0; i < maxBigAsteroids; i++)
@@ -102,6 +108,11 @@ void runGame()
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
 		asteroids[countAsteroids] = smallAsteroid[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxAuxAsteroids; i++)
+	{
+		asteroids[countAsteroids] = auxAsteroid[i];
 		countAsteroids++;
 	}
 
@@ -126,7 +137,7 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
-		teleportationBox( shipSprite, asteroidSprite);
+		teleportationBox(shipSprite, asteroidSprite);
 
 		for (int i = 0; i < maxBullets; i++)
 		{
@@ -137,7 +148,7 @@ void runGame()
 
 		if (!pause && currentScreen == Game)
 		{
-			input( normalizeDirect);
+			input(normalizeDirect);
 			ship.rotation = angle;
 
 			for (int i = 0; i < maxAsteroids; i++)
@@ -154,6 +165,16 @@ void runGame()
 					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 300;
 					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 300;
 				}
+			}
+
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			{
+				if (currentBullets >= maxBullets)
+					currentBullets = 0;
+
+				bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
+				currentBullets++;
+
 			}
 		}
 
@@ -173,13 +194,44 @@ void runGame()
 		{
 			for (int j = 0; j < maxBullets; j++)
 			{
-				if (CheckCollisionCircles(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive)
+				if (CheckCollisionCircles(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
 				{
 					asteroids[i].isActive = false;
 					bullets[j].isActive = false;
-				}
-			}
 
+					if (asteroids[i].size == AsteroidSize::Big)
+					{
+						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
+
+						int count = 0;
+						for (int k = maxAsteroids; k >= 0; k--)
+						{
+							if (!asteroids[k].isActive && count == 0)
+							{
+								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
+								count++;
+							}
+						}
+
+					}
+					else if (asteroids[i].size == AsteroidSize::Medium)
+					{
+						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
+
+						int count = 0;
+						for (int k = maxAsteroids; k >= 0; k--)
+						{
+							if (!asteroids[k].isActive && count == 0)
+							{
+								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
+								count++;
+							}
+						}
+					}
+
+				}
+
+			}
 		}
 
 		if (checkShipDead())
@@ -200,20 +252,7 @@ void runGame()
 			break;
 		case Game:
 
-			drawGame( shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro);
-
-			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-			{
-				if (currentBullets >= maxBullets)
-					currentBullets = 0;
-
-				bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
-				currentBullets++;
-				std::cout << normalizeDirect.x << "\n";
-				std::cout << normalizeDirect.y << "\n";
-
-			}
-
+			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro);
 
 			for (int i = 0; i < maxBullets; i++)
 			{
@@ -286,7 +325,7 @@ void runGame()
 	CloseWindow();
 }
 
-void input( Vector2 normalizeDirect)
+void input(Vector2 normalizeDirect)
 {
 	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
 	{
@@ -333,7 +372,7 @@ void drawCursor(Texture2D cursor, Vector2 mousePosition)
 	DrawTexturePro(cursor,
 		Rectangle{ 0, 0,static_cast<float>(cursor.width),static_cast<float>(cursor.height) },
 		Rectangle{ mousePosition.x, mousePosition.y, 30, 30 },
-		Vector2{ static_cast<float>(cursor.width / 2 + 5),static_cast<float>(cursor.height / 2 + 5 )},
+		Vector2{ static_cast<float>(cursor.width / 2 + 5),static_cast<float>(cursor.height / 2 + 5) },
 		0,
 		WHITE);
 }
@@ -406,7 +445,7 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 200)  , 170 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 135)  , 270 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght), 470 }, static_cast<float>(font.baseSize), 0, AQUA);
-	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50)}, static_cast<float>(font.baseSize), 0, WHITE);
+	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
 }
 
 void optionsBoxes(int& currentScreen, Texture2D smallCreditButtons)
@@ -433,7 +472,7 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 }
 
-void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro)
+void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro)
 {
 	DrawTexture(smallPauseButton, -3, static_cast<int>(GetScreenHeight() - 45), WHITE);
 	DrawText(TextFormat("Score: %f", score), 500, 10, 40, WHITE);

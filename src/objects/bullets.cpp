@@ -4,7 +4,7 @@
 
 Bullet bullets[maxBullets];
 
-Bullet initBullet(Bullet& bullet, Ship ship, Vector2 vectorDirection)
+Bullet initBullet(Bullet bullet, Ship ship, Vector2 vectorDirection)
 {
 	bullet.radius = 5;
 	bullet.x = ship.position.x;

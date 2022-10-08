@@ -2,11 +2,12 @@
 #include "raylib.h"
 #include <iostream>
 
-const int maxBigAsteroids = 1;
-const int maxMediumAsteroids = 1;
-const int maxSmallAsteroids = 1;
+const int maxBigAsteroids = 3;
+const int maxMediumAsteroids = 5;
+const int maxSmallAsteroids = 5;
+const int maxAuxAsteroids = 20;
 
-const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids;
+const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids + maxAuxAsteroids;
 
 
 enum class AsteroidSize
@@ -28,6 +29,6 @@ struct Asteroid
 	AsteroidSize size;
 };
 
-Asteroid initAsteroid(Asteroid &asteroid,float x, float y, float rotation, AsteroidSize size);
+void initAsteroid(Asteroid& asteroid,float x, float y, float rotation, AsteroidSize size);
 
 void drawAsteroid( Texture2D asteroidSprite, int i);

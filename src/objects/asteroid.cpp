@@ -3,9 +3,10 @@
 Asteroid bigAsteroid[maxBigAsteroids];
 Asteroid mediumAsteroid[maxMediumAsteroids];
 Asteroid smallAsteroid[maxSmallAsteroids];
+Asteroid auxAsteroid[maxAuxAsteroids];
 Asteroid asteroids[maxAsteroids];
 
-Asteroid initAsteroid(Asteroid& asteroid, float x, float y, float rotation, AsteroidSize size)
+void initAsteroid(Asteroid& asteroid, float x, float y, float rotation, AsteroidSize size)
 {
 	asteroid = { x, y };
 	asteroid.rotation = rotation;
@@ -38,8 +39,9 @@ Asteroid initAsteroid(Asteroid& asteroid, float x, float y, float rotation, Aste
 	asteroid.speed.x = static_cast<float>(randomSpeedX);
 	asteroid.speed.y = static_cast<float>(randomSpeedY);
 
+	//asteroid.speed = { 0,0 };
+
 	asteroid.isActive = true;
-	return asteroid;
 }
 
 void drawAsteroid(Texture2D asteroidSprite, int i)
@@ -73,4 +75,9 @@ void drawAsteroid(Texture2D asteroidSprite, int i)
 				WHITE);
 		}
 	
+}
+
+void separateAsteroids()
+{
+
 }

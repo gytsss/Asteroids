@@ -14,6 +14,6 @@ struct Bullet
 	Vector2 speed;
 };
 
-Bullet initBullet(Bullet& bullet, Ship ship, Vector2 vectorDirection);
+Bullet initBullet(Bullet bullet, Ship ship, Vector2 vectorDirection);
 
 
