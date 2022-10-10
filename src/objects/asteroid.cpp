@@ -39,8 +39,6 @@ void initAsteroid(Asteroid& asteroid, float x, float y, float rotation, Asteroid
 	asteroid.speed.x = static_cast<float>(randomSpeedX);
 	asteroid.speed.y = static_cast<float>(randomSpeedY);
 
-	//asteroid.speed = { 0,0 };
-
 	asteroid.isActive = true;
 }
 

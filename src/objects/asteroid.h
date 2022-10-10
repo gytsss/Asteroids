@@ -2,9 +2,9 @@
 #include "raylib.h"
 #include <iostream>
 
-const int maxBigAsteroids = 3;
-const int maxMediumAsteroids = 5;
-const int maxSmallAsteroids = 5;
+const int maxBigAsteroids = 1;
+const int maxMediumAsteroids = 1;
+const int maxSmallAsteroids = 1;
 const int maxAuxAsteroids = 20;
 
 const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids + maxAuxAsteroids;

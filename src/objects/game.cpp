@@ -25,7 +25,7 @@ void runGame()
 	SetWindowState(FLAG_VSYNC_HINT);
 	HideCursor();
 
-	initShip();
+
 
 	Texture2D shipSprite = LoadTexture("res/bluespaceship.png");
 	Texture2D shipSpriteNitro = LoadTexture("res/bluespaceshipNitro.png");
@@ -93,34 +93,34 @@ void runGame()
 
 	}
 
-	int countAsteroids = 0;
+	int currentAsteroids = 0;
+
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		asteroids[countAsteroids] = bigAsteroid[i];
-		countAsteroids++;
+		asteroids[currentAsteroids] = bigAsteroid[i];
+		currentAsteroids++;
 	}
 	for (int i = 0; i < maxMediumAsteroids; i++)
 	{
-		asteroids[countAsteroids] = mediumAsteroid[i];
-		countAsteroids++;
+		asteroids[currentAsteroids] = mediumAsteroid[i];
+		currentAsteroids++;
 
 	}
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
-		asteroids[countAsteroids] = smallAsteroid[i];
-		countAsteroids++;
+		asteroids[currentAsteroids] = smallAsteroid[i];
+		currentAsteroids++;
 	}
 	for (int i = 0; i < maxAuxAsteroids; i++)
 	{
-		asteroids[countAsteroids] = auxAsteroid[i];
-		countAsteroids++;
+		asteroids[currentAsteroids] = auxAsteroid[i];
+
 	}
 
 	int currentBullets = 0;
-
 	int currentScreen = Menu;
-
 	float score = 0;
+	int count = 0;
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -167,7 +167,7 @@ void runGame()
 				}
 			}
 
-			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && ship.isAlive)
 			{
 				if (currentBullets >= maxBullets)
 					currentBullets = 0;
@@ -183,10 +183,16 @@ void runGame()
 			if (CheckCollisionCircles(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
 			{
 				ship.lifes--;
-				ship.position.x = static_cast<float>(GetScreenWidth() / 2);
-				ship.position.y = static_cast<float>(GetScreenHeight() / 2);
-				ship.speed = { 0,0 };
+				ship.isAlive = false;
 			}
+
+		}
+		if (IsKeyReleased(KEY_SPACE) && !ship.isAlive)
+		{
+			ship.isAlive = true;
+			ship.position.x = static_cast<float>(GetScreenWidth() / 2);
+			ship.position.y = static_cast<float>(GetScreenHeight() / 2);
+			ship.speed = { 0,0 };
 
 		}
 
@@ -198,17 +204,20 @@ void runGame()
 				{
 					asteroids[i].isActive = false;
 					bullets[j].isActive = false;
+					currentAsteroids--;
 
 					if (asteroids[i].size == AsteroidSize::Big)
 					{
 						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
+						currentAsteroids++;
 
-						int count = 0;
-						for (int k = maxAsteroids; k >= 0; k--)
+						count = 0;
+						for (int k = maxAsteroids - 1; k >= 0; k--)
 						{
 							if (!asteroids[k].isActive && count == 0)
 							{
 								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
+								currentAsteroids++;
 								count++;
 							}
 						}
@@ -217,13 +226,14 @@ void runGame()
 					else if (asteroids[i].size == AsteroidSize::Medium)
 					{
 						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-
-						int count = 0;
-						for (int k = maxAsteroids; k >= 0; k--)
+						currentAsteroids++;
+						count = 0;
+						for (int k = maxAsteroids - 1; k >= 0; k--)
 						{
 							if (!asteroids[k].isActive && count == 0)
 							{
 								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
+								currentAsteroids++;
 								count++;
 							}
 						}
@@ -232,10 +242,49 @@ void runGame()
 				}
 
 			}
+
+			if (currentAsteroids == 0)
+			{
+				for (int j = 0; j < maxBigAsteroids; j++)
+				{
+					asteroids[currentAsteroids] = bigAsteroid[j];
+					currentAsteroids++;
+				}
+				for (int j = 0; j < maxMediumAsteroids; j++)
+				{
+					asteroids[currentAsteroids] = mediumAsteroid[j];
+					currentAsteroids++;
+
+				}
+				for (int j = 0; j < maxSmallAsteroids; j++)
+				{
+					asteroids[currentAsteroids] = smallAsteroid[j];
+					currentAsteroids++;
+				}
+				for (int j = 0; j < maxAuxAsteroids; j++)
+				{
+					asteroids[currentAsteroids] = auxAsteroid[j];
+
+				}
+			}
+
+		}
+
+		int anyKey = GetCharPressed();
+
+		if (anyKey > 0 && count == 0)
+		{
+			initShip();
+			count++;
 		}
 
 		if (checkShipDead())
+		{
+
 			ship.isAlive = false;
+			currentScreen = Menu;
+			reset();
+		}
 
 
 		BeginDrawing();
@@ -253,12 +302,12 @@ void runGame()
 		case Game:
 
 			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro);
+			DrawText(TextFormat("Asteroids: %i", currentAsteroids), 50, 50, 30, RED);
 
 			for (int i = 0; i < maxBullets; i++)
 			{
 				if (bullets[i].isActive)
 				{
-					DrawCircle(static_cast<int>(bullets[i].x), static_cast<int>(bullets[i].y), bullets[i].radius, RED);
 
 					DrawTexturePro(bullet,
 						Rectangle{ 0, 0, static_cast<float>(bullet.width) ,static_cast<float>(bullet.height) },
@@ -280,7 +329,11 @@ void runGame()
 				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - playButton.width / 2), 275, static_cast<float>(playButton.width) , static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 					pause = !pause;
 				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - quitButton.width / 2), 425, static_cast<float>(quitButton.width) ,static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+				{
 					currentScreen = Menu;
+					reset();
+					pause = !pause;
+				}
 
 			}
 
@@ -482,7 +535,8 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 		DrawTexture(shipSprite, 180 + i * 50, 5, WHITE);
 	}
 
-	DrawCircleLines(static_cast<int>(ship.position.x), static_cast<int>(ship.position.y), static_cast<float>(ship.radius), WHITE);
+	if (ship.isAlive)
+		DrawCircleLines(static_cast<int>(ship.position.x), static_cast<int>(ship.position.y), static_cast<float>(ship.radius), WHITE);
 
 	drawShip(shipSprite, shipSpriteNitro);
 	for (int i = 0; i < maxAsteroids; i++)
@@ -498,5 +552,23 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 	DrawFPS(10, 10);
 
+}
+
+void reset()
+{
+	ship.position = { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) };
+	ship.speed = { 0, 0 };
+	ship.lifes = 3;
+	ship.isAlive = false;
+
+	for (int i = 0; i < maxBullets; i++)
+	{
+		bullets[i].isActive = false;
+	}
+
+	for (int i = 0; i < maxAsteroids - 1; i++)
+	{
+		asteroids[i].isActive = true;
+	}
 }
 
