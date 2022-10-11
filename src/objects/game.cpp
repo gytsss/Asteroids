@@ -25,6 +25,8 @@ void runGame()
 
 	InitWindow(screenWidth, screenHeight, "Asteroids");
 	SetWindowState(FLAG_VSYNC_HINT);
+	InitAudioDevice();
+
 	HideCursor();
 
 
@@ -47,7 +49,8 @@ void runGame()
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
 	Font gameFont = LoadFontEx("res/futuristFont.ttf", 100, 0, 0);
-	
+
+	Sound laserShot = LoadSound("res/shot.wav");
 
 
 	Vector2 mousePosition;
@@ -77,6 +80,7 @@ void runGame()
 	rightClick.width = rightClick.width / 3;
 	rightClick.height = rightClick.height / 3;
 
+	SetSoundVolume(laserShot, 0.15f);
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
@@ -121,11 +125,11 @@ void runGame()
 	{
 		asteroids[countAsteroids] = auxAsteroid[i];
 		countAsteroids++;
-		
+
 	}
 
 	int currentBullets = 0;
-	
+
 	int currentScreen = Menu;
 	float score = 0.0f;
 	float firstLife = true;
@@ -177,6 +181,8 @@ void runGame()
 
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && ship.isAlive)
 			{
+				PlaySoundMulti(laserShot);
+
 				if (currentBullets >= maxBullets)
 					currentBullets = 0;
 
@@ -266,8 +272,8 @@ void runGame()
 
 		}
 
-		float anyKeyTextLenght = MeasureTextEx(titleFont,"Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
-		Vector2 deadTextLenght = MeasureTextEx(gameFont,"Game Over", static_cast<float>(gameFont.baseSize), 0);
+		float anyKeyTextLenght = MeasureTextEx(titleFont, "Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
+		Vector2 deadTextLenght = MeasureTextEx(gameFont, "Game Over", static_cast<float>(gameFont.baseSize), 0);
 
 		int anyKey = GetCharPressed();
 		if (anyKey > 0 && firstLife)
@@ -279,7 +285,7 @@ void runGame()
 		if (checkShipDead())
 		{
 			ship.isAlive = false;
-			
+
 		}
 
 
@@ -301,7 +307,7 @@ void runGame()
 			{
 				DrawTextEx(titleFont, "Press any key to start", Vector2{ static_cast<float>((GetScreenWidth() / 2) - (anyKeyTextLenght / 2)), static_cast<float>(GetScreenHeight() / 2) }, static_cast<float>(titleFont.baseSize / 2), 0, WHITE);
 			}
-			
+
 			if (checkShipDead() && ship.position.x != 0)
 			{
 				DrawTextEx(gameFont, "Game Over", Vector2{ static_cast<float>(GetScreenWidth() / 2 - deadTextLenght.x / 2), static_cast<float>(GetScreenHeight() / 2) - deadTextLenght.y / 2 }, static_cast<float>(gameFont.baseSize), 0, RED);
@@ -384,6 +390,11 @@ void runGame()
 	UnloadFont(font);
 	UnloadFont(titleFont);
 
+	StopSoundMulti();
+	UnloadSound(laserShot);
+
+	CloseAudioDevice();
+
 	CloseWindow();
 }
 
@@ -459,14 +470,14 @@ void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, 
 
 void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont)
 {
-	int titleLength = static_cast<int>(MeasureTextEx(titleFont,"Remasteroids", static_cast<float>(titleFont.baseSize), 0).x);
+	int titleLength = static_cast<int>(MeasureTextEx(titleFont, "Remasteroids", static_cast<float>(titleFont.baseSize), 0).x);
 
 	DrawTexture(playButton, -3, 350, WHITE);
 	DrawTexture(pauseButton, -3, 450, WHITE);
 	DrawTexture(creditButton, -3, 550, WHITE);
 	DrawTexture(quitButton, -3, 650, WHITE);
 
-	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2 - titleLength / 2 ), 90, titleLength , 90, WHITE);
+	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2 - titleLength / 2), 90, titleLength, 90, WHITE);
 
 	DrawTextEx(titleFont, "Remasteroids", Vector2{ static_cast<float>(GetScreenWidth() / 2 - titleLength / 2), 100 }, static_cast<float>(titleFont.baseSize), 0, WHITE);
 
@@ -487,8 +498,9 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
 		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
-		if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
-			currentScreen = Menu;
+		OpenURL("https://opengameart.org/content/laser-fire");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
+		currentScreen = Menu;
 
 }
 
@@ -505,6 +517,7 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 200)  , 170 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 135)  , 270 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Laser Sound by Dklon"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 170)  , 370 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght), 470 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
 }
@@ -539,7 +552,7 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 	DrawTexture(smallPauseButton, -3, static_cast<int>(GetScreenHeight() - 45), WHITE);
 	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2), 15, scoreLength, 40, WHITE);
-	DrawTextEx(titleFont, TextFormat("Score: %02.02f ",  score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
+	DrawTextEx(titleFont, TextFormat("Score: %02.02f ", score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
 	{
@@ -578,7 +591,7 @@ void reset(float& score)
 		bullets[i].isActive = false;
 	}
 
-	for (int i = 0; i < maxAsteroids -1; i++)
+	for (int i = 0; i < maxAsteroids - 1; i++)
 	{
 		asteroids[i].isActive = true;
 	}
