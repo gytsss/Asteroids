@@ -16,7 +16,7 @@ extern Asteroid asteroids[maxAsteroids];
 
 extern Bullet bullets[maxBullets];
 
-void reset();
+void reset(float& score);
 
 void runGame()
 {
@@ -46,6 +46,8 @@ void runGame()
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
+	Font gameFont = LoadFontEx("res/futuristFont.ttf", 100, 0, 0);
+	
 
 
 	Vector2 mousePosition;
@@ -125,7 +127,7 @@ void runGame()
 	int currentBullets = 0;
 	
 	int currentScreen = Menu;
-	float score = 0;
+	float score = 0.0f;
 	float firstLife = true;
 
 	while (!WindowShouldClose() && !gameFinish)
@@ -265,6 +267,7 @@ void runGame()
 		}
 
 		float anyKeyTextLenght = MeasureTextEx(titleFont,"Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
+		Vector2 deadTextLenght = MeasureTextEx(gameFont,"Game Over", static_cast<float>(gameFont.baseSize), 0);
 
 		int anyKey = GetCharPressed();
 		if (anyKey > 0 && firstLife)
@@ -276,7 +279,7 @@ void runGame()
 		if (checkShipDead())
 		{
 			ship.isAlive = false;
-			reset();
+			
 		}
 
 
@@ -294,10 +297,14 @@ void runGame()
 
 			break;
 		case Game:
-
 			if (firstLife)
 			{
 				DrawTextEx(titleFont, "Press any key to start", Vector2{ static_cast<float>((GetScreenWidth() / 2) - (anyKeyTextLenght / 2)), static_cast<float>(GetScreenHeight() / 2) }, static_cast<float>(titleFont.baseSize / 2), 0, WHITE);
+			}
+			
+			if (checkShipDead() && ship.position.x != 0)
+			{
+				DrawTextEx(gameFont, "Game Over", Vector2{ static_cast<float>(GetScreenWidth() / 2 - deadTextLenght.x / 2), static_cast<float>(GetScreenHeight() / 2) - deadTextLenght.y / 2 }, static_cast<float>(gameFont.baseSize), 0, RED);
 			}
 
 			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro, titleFont);
@@ -329,7 +336,7 @@ void runGame()
 				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - quitButton.width / 2), 425, static_cast<float>(quitButton.width) ,static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				{
 					currentScreen = Menu;
-					reset();
+					reset(score);
 					pause = !pause;
 					firstLife = true;
 				}
@@ -528,12 +535,11 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont)
 {
-	int scoreLength = static_cast<int>(MeasureTextEx(titleFont, "Score: %02.02f ", static_cast<float>(titleFont.baseSize / 2.5), 0).x);
-
+	int scoreLength = static_cast<int>(MeasureTextEx(titleFont, "Score: %02.020f ", static_cast<float>(titleFont.baseSize / 2.5), 0).x);
 
 	DrawTexture(smallPauseButton, -3, static_cast<int>(GetScreenHeight() - 45), WHITE);
 	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2), 15, scoreLength, 40, WHITE);
-	DrawTextEx(titleFont, TextFormat("Score: %02.02f ", score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
+	DrawTextEx(titleFont, TextFormat("Score: %02.02f ",  score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
 	{
@@ -559,12 +565,13 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 }
 
-void reset()
+void reset(float& score)
 {
 	ship.position = { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) };
 	ship.speed = { 0, 0 };
 	ship.lifes = 3;
 	ship.isAlive = false;
+	score = 0;
 
 	for (int i = 0; i < maxBullets - 1; i++)
 	{
