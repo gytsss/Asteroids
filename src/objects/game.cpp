@@ -51,6 +51,15 @@ void runGame()
 	Font gameFont = LoadFontEx("res/futuristFont.ttf", 100, 0, 0);
 
 	Sound laserShot = LoadSound("res/shot.wav");
+	Sound explosion1 = LoadSound("res/explosion01.wav");
+	Sound explosion2 = LoadSound("res/explosion02.wav");
+	Sound explosion3 = LoadSound("res/explosion03.wav");
+	Sound explosion4 = LoadSound("res/explosion04.wav");
+	Sound explosion5 = LoadSound("res/explosion05.wav");
+	Sound explosion6 = LoadSound("res/explosion06.wav");
+	Sound explosion7 = LoadSound("res/explosion07.wav");
+	Sound explosion8 = LoadSound("res/explosion08.wav");
+	Sound explosion9 = LoadSound("res/explosion09.wav");
 
 
 	Vector2 mousePosition;
@@ -81,6 +90,15 @@ void runGame()
 	rightClick.height = rightClick.height / 3;
 
 	SetSoundVolume(laserShot, 0.15f);
+	SetSoundVolume(explosion1, 0.3f);
+	SetSoundVolume(explosion2, 0.3f);
+	SetSoundVolume(explosion3, 0.3f);
+	SetSoundVolume(explosion4, 0.3f);
+	SetSoundVolume(explosion5, 0.3f);
+	SetSoundVolume(explosion6, 0.3f);
+	SetSoundVolume(explosion7, 0.3f);
+	SetSoundVolume(explosion8, 0.3f);
+	SetSoundVolume(explosion9, 0.3f);
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
@@ -216,6 +234,42 @@ void runGame()
 			{
 				if (CheckCollisionCircles(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
 				{
+					int randomSound = GetRandomValue(1, 9);
+
+					switch (randomSound)
+					{
+					case 1:
+						PlaySoundMulti(explosion1);
+						break;
+					case 2:
+						PlaySoundMulti(explosion2);
+						break;
+					case 3:
+						PlaySoundMulti(explosion3);
+						break;
+					case 4:
+						PlaySoundMulti(explosion4);
+						break;
+					case 5:
+						PlaySoundMulti(explosion5);
+						break;
+					case 6:
+						PlaySoundMulti(explosion6);
+						break;
+					case 7:
+						PlaySoundMulti(explosion7);
+						break;
+					case 8:
+						PlaySoundMulti(explosion8);
+						break;
+					case 9:
+						PlaySoundMulti(explosion9);
+						break;
+					default:
+						break;
+					}
+
+
 					switch (asteroids[i].size)
 					{
 					case AsteroidSize::Big:
@@ -392,7 +446,15 @@ void runGame()
 
 	StopSoundMulti();
 	UnloadSound(laserShot);
-
+	UnloadSound(explosion1);
+	UnloadSound(explosion2);
+	UnloadSound(explosion3);
+	UnloadSound(explosion4);
+	UnloadSound(explosion5);
+	UnloadSound(explosion6);
+	UnloadSound(explosion7);
+	UnloadSound(explosion8);
+	UnloadSound(explosion9);
 	CloseAudioDevice();
 
 	CloseWindow();
@@ -490,15 +552,18 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	Rectangle creditBox2 = { -3, static_cast<float>(GetScreenHeight() - 70), static_cast<float>(smallCreditButtons.width), static_cast<float>(smallCreditButtons.height) };
 	Rectangle creditBox3 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 350, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
 	Rectangle creditBox4 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 450, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
+	Rectangle creditBox5 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 550, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
 
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox)))
 		OpenURL("https://opengameart.org/content/a-layered-asteroid-rock");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
 		OpenURL("https://opengameart.org/content/square-gaming-font-free");
-	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
-		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
 		OpenURL("https://opengameart.org/content/laser-fire");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
+		OpenURL("https://opengameart.org/content/9-explosion-sounds");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox5)))
+		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
 		currentScreen = Menu;
 
@@ -506,19 +571,25 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 
 void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons)
 {
-	float creditTextLenght = static_cast<float>(MeasureText("Itch.io", font.baseSize) / 2);
+	float creditTextLenght = static_cast<float>(MeasureTextEx(font,"Asteroid by FunwithPixels", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght1 = static_cast<float>(MeasureTextEx(font,"Font by openikino", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght2 = static_cast<float>(MeasureTextEx(font,"Laser sound by Dklon", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght3 = static_cast<float>(MeasureTextEx(font,"Explosion sounds by Viktor.Hahn", static_cast<float>(font.baseSize / 1.22), 0).x);
+	float creditTextLenght4 = static_cast<float>(MeasureTextEx(font,"Itch.io", static_cast<float>(font.baseSize), 0).x);
 
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 150, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 250, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 350, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 450, WHITE);
+	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 550, WHITE);
 	DrawTextureEx(smallCreditButtons, Vector2{ -3, static_cast<float>(GetScreenHeight() - 70) }, 0, 1, WHITE);
 
 
-	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 200)  , 170 }, static_cast<float>(font.baseSize), 0, AQUA);
-	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 135)  , 270 }, static_cast<float>(font.baseSize), 0, AQUA);
-	DrawTextEx(font, TextFormat("Laser Sound by Dklon"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 170)  , 370 }, static_cast<float>(font.baseSize), 0, AQUA);
-	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght), 470 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght / 2)  , 170 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght1 / 2)  , 270 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Laser Sound by Dklon"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght2 / 2)  , 370 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Explosion sounds by Viktor.Hahn"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght3 / 2)  , 470 }, static_cast<float>(font.baseSize / 1.22), 0, AQUA);
+	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght4 / 2), 570 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
 }
 
