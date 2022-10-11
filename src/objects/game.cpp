@@ -16,6 +16,8 @@ extern Asteroid asteroids[maxAsteroids];
 
 extern Bullet bullets[maxBullets];
 
+void reset();
+
 void runGame()
 {
 	int screenWidth = 1024;
@@ -24,7 +26,6 @@ void runGame()
 	InitWindow(screenWidth, screenHeight, "Asteroids");
 	SetWindowState(FLAG_VSYNC_HINT);
 	HideCursor();
-
 
 
 	Texture2D shipSprite = LoadTexture("res/bluespaceship.png");
@@ -93,34 +94,39 @@ void runGame()
 
 	}
 
+	int countAsteroids = 0;
 	int currentAsteroids = 0;
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		asteroids[currentAsteroids] = bigAsteroid[i];
+		asteroids[countAsteroids] = bigAsteroid[i];
+		countAsteroids++;
 		currentAsteroids++;
 	}
 	for (int i = 0; i < maxMediumAsteroids; i++)
 	{
-		asteroids[currentAsteroids] = mediumAsteroid[i];
+		asteroids[countAsteroids] = mediumAsteroid[i];
+		countAsteroids++;
 		currentAsteroids++;
-
 	}
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
-		asteroids[currentAsteroids] = smallAsteroid[i];
+		asteroids[countAsteroids] = smallAsteroid[i];
+		countAsteroids++;
 		currentAsteroids++;
 	}
 	for (int i = 0; i < maxAuxAsteroids; i++)
 	{
-		asteroids[currentAsteroids] = auxAsteroid[i];
-
+		asteroids[countAsteroids] = auxAsteroid[i];
+		countAsteroids++;
+		
 	}
 
 	int currentBullets = 0;
+	
 	int currentScreen = Menu;
 	float score = 0;
-	int count = 0;
+	float firstLife = true;
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -202,42 +208,26 @@ void runGame()
 			{
 				if (CheckCollisionCircles(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
 				{
+					switch (asteroids[i].size)
+					{
+					case AsteroidSize::Big:
+						score += 10;
+						break;
+					case AsteroidSize::Medium:
+						score += 5;
+						break;
+					case AsteroidSize::Small:
+						score += 2.5;
+						break;
+					default:
+						break;
+					}
+
 					asteroids[i].isActive = false;
 					bullets[j].isActive = false;
 					currentAsteroids--;
 
-					if (asteroids[i].size == AsteroidSize::Big)
-					{
-						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-						currentAsteroids++;
-
-						count = 0;
-						for (int k = maxAsteroids - 1; k >= 0; k--)
-						{
-							if (!asteroids[k].isActive && count == 0)
-							{
-								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-								currentAsteroids++;
-								count++;
-							}
-						}
-
-					}
-					else if (asteroids[i].size == AsteroidSize::Medium)
-					{
-						initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-						currentAsteroids++;
-						count = 0;
-						for (int k = maxAsteroids - 1; k >= 0; k--)
-						{
-							if (!asteroids[k].isActive && count == 0)
-							{
-								initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-								currentAsteroids++;
-								count++;
-							}
-						}
-					}
+					separateAsteroids(currentAsteroids, i);
 
 				}
 
@@ -245,50 +235,54 @@ void runGame()
 
 			if (currentAsteroids == 0)
 			{
+				countAsteroids = 0;
 				for (int j = 0; j < maxBigAsteroids; j++)
 				{
-					asteroids[currentAsteroids] = bigAsteroid[j];
+					asteroids[countAsteroids] = bigAsteroid[j];
+					countAsteroids++;
 					currentAsteroids++;
 				}
 				for (int j = 0; j < maxMediumAsteroids; j++)
 				{
-					asteroids[currentAsteroids] = mediumAsteroid[j];
+					asteroids[countAsteroids] = mediumAsteroid[j];
+					countAsteroids++;
 					currentAsteroids++;
-
 				}
 				for (int j = 0; j < maxSmallAsteroids; j++)
 				{
-					asteroids[currentAsteroids] = smallAsteroid[j];
+					asteroids[countAsteroids] = smallAsteroid[j];
+					countAsteroids++;
 					currentAsteroids++;
 				}
 				for (int j = 0; j < maxAuxAsteroids; j++)
 				{
-					asteroids[currentAsteroids] = auxAsteroid[j];
+					asteroids[countAsteroids] = auxAsteroid[j];
+					countAsteroids++;
 
 				}
 			}
 
 		}
 
-		int anyKey = GetCharPressed();
+		float anyKeyTextLenght = MeasureTextEx(titleFont,"Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
 
-		if (anyKey > 0 && count == 0)
+		int anyKey = GetCharPressed();
+		if (anyKey > 0 && firstLife)
 		{
 			initShip();
-			count++;
+			firstLife = false;
 		}
 
 		if (checkShipDead())
 		{
-
 			ship.isAlive = false;
-			currentScreen = Menu;
 			reset();
 		}
 
 
 		BeginDrawing();
 
+		ClearBackground(BLACK);
 		DrawTexture(background, 0, 0, WHITE);
 
 		switch (currentScreen)
@@ -301,8 +295,12 @@ void runGame()
 			break;
 		case Game:
 
-			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro);
-			DrawText(TextFormat("Asteroids: %i", currentAsteroids), 50, 50, 30, RED);
+			if (firstLife)
+			{
+				DrawTextEx(titleFont, "Press any key to start", Vector2{ static_cast<float>((GetScreenWidth() / 2) - (anyKeyTextLenght / 2)), static_cast<float>(GetScreenHeight() / 2) }, static_cast<float>(titleFont.baseSize / 2), 0, WHITE);
+			}
+
+			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro, titleFont);
 
 			for (int i = 0; i < maxBullets; i++)
 			{
@@ -333,6 +331,7 @@ void runGame()
 					currentScreen = Menu;
 					reset();
 					pause = !pause;
+					firstLife = true;
 				}
 
 			}
@@ -360,6 +359,7 @@ void runGame()
 	}
 
 	UnloadTexture(shipSprite);
+	UnloadTexture(shipSpriteNitro);
 	UnloadTexture(asteroidSprite);
 	UnloadTexture(background);
 	UnloadTexture(pauseButton);
@@ -369,6 +369,8 @@ void runGame()
 	UnloadTexture(creditButton);
 	UnloadTexture(creditButtons);
 	UnloadTexture(smallCreditButtons);
+	UnloadTexture(leftClick);
+	UnloadTexture(rightClick);
 	UnloadTexture(cursor);
 	UnloadTexture(bullet);
 
@@ -450,16 +452,16 @@ void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, 
 
 void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont)
 {
-	int titleLegth = MeasureText("Remasteroids", titleFont.baseSize) / 2;
+	int titleLength = static_cast<int>(MeasureTextEx(titleFont,"Remasteroids", static_cast<float>(titleFont.baseSize), 0).x);
 
 	DrawTexture(playButton, -3, 350, WHITE);
 	DrawTexture(pauseButton, -3, 450, WHITE);
 	DrawTexture(creditButton, -3, 550, WHITE);
 	DrawTexture(quitButton, -3, 650, WHITE);
 
-	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2 - titleLegth - 110), 90, titleLegth + 550, 90, WHITE);
+	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2 - titleLength / 2 ), 90, titleLength , 90, WHITE);
 
-	DrawTextEx(titleFont, "Remasteroids", Vector2{ static_cast<float>(GetScreenWidth() / 2 - titleLegth - 100), 100 }, static_cast<float>(titleFont.baseSize), 0, WHITE);
+	DrawTextEx(titleFont, "Remasteroids", Vector2{ static_cast<float>(GetScreenWidth() / 2 - titleLength / 2), 100 }, static_cast<float>(titleFont.baseSize), 0, WHITE);
 
 }
 
@@ -475,12 +477,11 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 		OpenURL("https://opengameart.org/content/a-layered-asteroid-rock");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
 		OpenURL("https://opengameart.org/content/square-gaming-font-free");
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
+		OpenURL("https://tgodd.itch.io/");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox3)))
-
-		if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox4)))
-			OpenURL("https://tgodd.itch.io/");
-	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
-		currentScreen = Menu;
+		if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox2)))
+			currentScreen = Menu;
 
 }
 
@@ -525,10 +526,14 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 }
 
-void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro)
+void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont)
 {
+	int scoreLength = static_cast<int>(MeasureTextEx(titleFont, "Score: %02.02f ", static_cast<float>(titleFont.baseSize / 2.5), 0).x);
+
+
 	DrawTexture(smallPauseButton, -3, static_cast<int>(GetScreenHeight() - 45), WHITE);
-	DrawText(TextFormat("Score: %f", score), 500, 10, 40, WHITE);
+	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2), 15, scoreLength, 40, WHITE);
+	DrawTextEx(titleFont, TextFormat("Score: %02.02f ", score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
 	{
@@ -561,14 +566,19 @@ void reset()
 	ship.lifes = 3;
 	ship.isAlive = false;
 
-	for (int i = 0; i < maxBullets; i++)
+	for (int i = 0; i < maxBullets - 1; i++)
 	{
 		bullets[i].isActive = false;
 	}
 
-	for (int i = 0; i < maxAsteroids - 1; i++)
+	for (int i = 0; i < maxAsteroids -1; i++)
 	{
 		asteroids[i].isActive = true;
+	}
+
+	for (int i = maxAsteroids - 1; i > maxAsteroids - maxAuxAsteroids; i--)
+	{
+		asteroids[i].isActive = false;
 	}
 }
 

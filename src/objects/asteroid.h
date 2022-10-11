@@ -2,10 +2,10 @@
 #include "raylib.h"
 #include <iostream>
 
-const int maxBigAsteroids = 1;
-const int maxMediumAsteroids = 1;
-const int maxSmallAsteroids = 1;
-const int maxAuxAsteroids = 20;
+const int maxBigAsteroids = 2;
+const int maxMediumAsteroids = 3;
+const int maxSmallAsteroids = 2;
+const int maxAuxAsteroids = 30;
 
 const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids + maxAuxAsteroids;
 
@@ -32,3 +32,5 @@ struct Asteroid
 void initAsteroid(Asteroid& asteroid,float x, float y, float rotation, AsteroidSize size);
 
 void drawAsteroid( Texture2D asteroidSprite, int i);
+
+void separateAsteroids(int& currentAsteroids, int i);
