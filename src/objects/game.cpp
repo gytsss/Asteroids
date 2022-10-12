@@ -1,5 +1,4 @@
 #include <iostream>
-#include "math.h"
 #include "game.h"
 #include "spaceShip.h"
 #include "asteroid.h"
@@ -16,7 +15,7 @@ extern Asteroid asteroids[maxAsteroids];
 
 extern Bullet bullets[maxBullets];
 
-void reset(float& score);
+static void reset(float& score, int& playOnce);
 
 void runGame()
 {
@@ -60,6 +59,8 @@ void runGame()
 	Sound explosion7 = LoadSound("res/explosion07.wav");
 	Sound explosion8 = LoadSound("res/explosion08.wav");
 	Sound explosion9 = LoadSound("res/explosion09.wav");
+	Sound shipExplosion = LoadSound("res/shipExplosion.wav");
+	Sound gameOver = LoadSound("res/gameOver.wav");
 
 
 	Vector2 mousePosition;
@@ -99,6 +100,7 @@ void runGame()
 	SetSoundVolume(explosion7, 0.3f);
 	SetSoundVolume(explosion8, 0.3f);
 	SetSoundVolume(explosion9, 0.3f);
+	SetSoundVolume(gameOver, 0.3f);
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
@@ -151,6 +153,7 @@ void runGame()
 	int currentScreen = Menu;
 	float score = 0.0f;
 	float firstLife = true;
+	int playOnce = 0;
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -214,6 +217,7 @@ void runGame()
 		{
 			if (CheckCollisionCircles(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
 			{
+				PlaySoundMulti(shipExplosion);
 				ship.lifes--;
 				ship.isAlive = false;
 			}
@@ -326,6 +330,7 @@ void runGame()
 
 		}
 
+
 		float anyKeyTextLenght = MeasureTextEx(titleFont, "Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
 		Vector2 deadTextLenght = MeasureTextEx(gameFont, "Game Over", static_cast<float>(gameFont.baseSize), 0);
 
@@ -341,6 +346,7 @@ void runGame()
 			ship.isAlive = false;
 
 		}
+
 
 
 		BeginDrawing();
@@ -362,9 +368,24 @@ void runGame()
 				DrawTextEx(titleFont, "Press any key to start", Vector2{ static_cast<float>((GetScreenWidth() / 2) - (anyKeyTextLenght / 2)), static_cast<float>(GetScreenHeight() / 2) }, static_cast<float>(titleFont.baseSize / 2), 0, WHITE);
 			}
 
+
 			if (checkShipDead() && ship.position.x != 0)
 			{
+				if (playOnce == 0)
+				{
+					PlaySoundMulti(gameOver);
+					playOnce++;
+				}
 				DrawTextEx(gameFont, "Game Over", Vector2{ static_cast<float>(GetScreenWidth() / 2 - deadTextLenght.x / 2), static_cast<float>(GetScreenHeight() / 2) - deadTextLenght.y / 2 }, static_cast<float>(gameFont.baseSize), 0, RED);
+
+				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+				{
+					currentScreen = Menu;
+					reset(score, playOnce);
+					pause = false;
+					firstLife = true;
+
+				}
 			}
 
 			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro, titleFont);
@@ -373,7 +394,6 @@ void runGame()
 			{
 				if (bullets[i].isActive)
 				{
-
 					DrawTexturePro(bullet,
 						Rectangle{ 0, 0, static_cast<float>(bullet.width) ,static_cast<float>(bullet.height) },
 						Rectangle{ static_cast<float>(bullets[i].x) , static_cast<float>(bullets[i].y), 70, 70 },
@@ -396,7 +416,7 @@ void runGame()
 				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - quitButton.width / 2), 425, static_cast<float>(quitButton.width) ,static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				{
 					currentScreen = Menu;
-					reset(score);
+					reset(score, playOnce);
 					pause = !pause;
 					firstLife = true;
 				}
@@ -455,6 +475,8 @@ void runGame()
 	UnloadSound(explosion7);
 	UnloadSound(explosion8);
 	UnloadSound(explosion9);
+	UnloadSound(shipExplosion);
+	UnloadSound(gameOver);
 	CloseAudioDevice();
 
 	CloseWindow();
@@ -466,7 +488,6 @@ void input(Vector2 normalizeDirect)
 	{
 		ship.speed.x += normalizeDirect.x;
 		ship.speed.y += normalizeDirect.y;
-
 
 	}
 
@@ -571,11 +592,11 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 
 void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons)
 {
-	float creditTextLenght = static_cast<float>(MeasureTextEx(font,"Asteroid by FunwithPixels", static_cast<float>(font.baseSize), 0).x);
-	float creditTextLenght1 = static_cast<float>(MeasureTextEx(font,"Font by openikino", static_cast<float>(font.baseSize), 0).x);
-	float creditTextLenght2 = static_cast<float>(MeasureTextEx(font,"Laser sound by Dklon", static_cast<float>(font.baseSize), 0).x);
-	float creditTextLenght3 = static_cast<float>(MeasureTextEx(font,"Explosion sounds by Viktor.Hahn", static_cast<float>(font.baseSize / 1.22), 0).x);
-	float creditTextLenght4 = static_cast<float>(MeasureTextEx(font,"Itch.io", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght = static_cast<float>(MeasureTextEx(font, "Asteroid by FunwithPixels", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght1 = static_cast<float>(MeasureTextEx(font, "Font by openikino", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght2 = static_cast<float>(MeasureTextEx(font, "Laser sound by Dklon", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght3 = static_cast<float>(MeasureTextEx(font, "Explosion sounds by Viktor.Hahn", static_cast<float>(font.baseSize / 1.22), 0).x);
+	float creditTextLenght4 = static_cast<float>(MeasureTextEx(font, "Itch.io", static_cast<float>(font.baseSize), 0).x);
 
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 150, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 250, WHITE);
@@ -649,13 +670,15 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 }
 
-void reset(float& score)
+void reset(float& score, int& playOnce)
 {
 	ship.position = { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) };
 	ship.speed = { 0, 0 };
 	ship.lifes = 3;
 	ship.isAlive = false;
 	score = 0;
+
+	playOnce = 0;
 
 	for (int i = 0; i < maxBullets - 1; i++)
 	{
