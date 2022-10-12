@@ -77,6 +77,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Platform)$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -99,6 +101,16 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\raylib-4.0.0_win32_msvc16\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>raylib.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>IF NOT EXIST "$(TargetDir)res" (
+CD $(TargetDir)
+MKDIR res
+
+CD res
+
+XCOPY "$(SolutionDir)\res"  "$(TargetDir)res"
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -109,14 +121,27 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\raylib-4.0.0_win32_msvc16\include;$(SolutionDir)\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EntryPointSymbol>main_CRT</EntryPointSymbol>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalDependencies>raylib.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\raylib-4.0.0_win32_msvc16\lib</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>IF NOT EXIST "$(TargetDir)res" (
+CD $(TargetDir)
+MKDIR res
+
+CD res
+
+XCOPY "$(SolutionDir)\res"  "$(TargetDir)res"
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -151,12 +176,14 @@
     <ClCompile Include="src\objects\asteroid.cpp" />
     <ClCompile Include="src\objects\bullets.cpp" />
     <ClCompile Include="src\objects\game.cpp" />
+    <ClCompile Include="src\objects\spaceman.cpp" />
     <ClCompile Include="src\objects\spaceShip.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\objects\asteroid.h" />
     <ClInclude Include="src\objects\bullets.h" />
     <ClInclude Include="src\objects\game.h" />
+    <ClInclude Include="src\objects\spaceman.h" />
     <ClInclude Include="src\objects\spaceShip.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

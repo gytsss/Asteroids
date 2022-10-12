@@ -1,6 +1,6 @@
 #pragma once
-#include <iostream>
 #include "raylib.h"
+
 #include "spaceShip.h"
 #include "asteroid.h"
 
@@ -35,5 +35,6 @@ void optionsBoxes(int &currentScreen, Texture2D smallCreditButtons);
 
 void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick);
 
-void drawGame(  Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont);
+void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont);
 
+bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2);

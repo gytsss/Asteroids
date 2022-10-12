@@ -1,9 +1,9 @@
 #include "asteroid.h"
 
-Asteroid bigAsteroid[maxBigAsteroids];
-Asteroid mediumAsteroid[maxMediumAsteroids];
-Asteroid smallAsteroid[maxSmallAsteroids];
-Asteroid auxAsteroid[maxAuxAsteroids];
+Asteroid bigAsteroids[maxBigAsteroids];
+Asteroid mediumAsteroids[maxMediumAsteroids];
+Asteroid smallAsteroids[maxSmallAsteroids];
+Asteroid auxAsteroids[maxAuxAsteroids];
 Asteroid asteroids[maxAsteroids];
 
 void initAsteroid(Asteroid& asteroid, float x, float y, float rotation, AsteroidSize size)

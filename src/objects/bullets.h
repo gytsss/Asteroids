@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+
 #include "spaceShip.h"
 
 const int maxBullets = 15;

@@ -1,6 +1,7 @@
 #include "bullets.h"
-#include "spaceShip.h"
+
 #include "raymath.h"
+
 
 Bullet bullets[maxBullets];
 

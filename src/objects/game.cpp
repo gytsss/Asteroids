@@ -1,19 +1,23 @@
-#include <iostream>
 #include "game.h"
-#include "spaceShip.h"
-#include "asteroid.h"
+
+#include <iostream>
+
 #include "bullets.h"
+#include "asteroid.h"
+#include "spaceman.h"
 
 
 extern Ship ship;
 
-extern Asteroid bigAsteroid[maxBigAsteroids];
-extern Asteroid mediumAsteroid[maxMediumAsteroids];
-extern Asteroid smallAsteroid[maxSmallAsteroids];
-extern Asteroid auxAsteroid[maxAuxAsteroids];
+extern Asteroid bigAsteroids[maxBigAsteroids];
+extern Asteroid mediumAsteroids[maxMediumAsteroids];
+extern Asteroid smallAsteroids[maxSmallAsteroids];
+extern Asteroid auxAsteroids[maxAuxAsteroids];
 extern Asteroid asteroids[maxAsteroids];
 
 extern Bullet bullets[maxBullets];
+
+extern Spaceman spaceman;
 
 static void reset(float& score, int& playOnce);
 
@@ -44,6 +48,7 @@ void runGame()
 	Texture2D leftClick = LoadTexture("res/leftclick.png");
 	Texture2D rightClick = LoadTexture("res/rightclick.png");
 	Texture2D bullet = LoadTexture("res/laserBullet.png");
+	Texture2D spacemanSprite = LoadTexture("res/spaceman.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
@@ -102,21 +107,23 @@ void runGame()
 	SetSoundVolume(explosion9, 0.3f);
 	SetSoundVolume(gameOver, 0.3f);
 
+	initSpaceman(spaceman);
+
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		initAsteroid(bigAsteroid[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Big);
+		initAsteroid(bigAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Big);
 	}
 	for (int i = 0; i < maxMediumAsteroids; i++)
 	{
-		initAsteroid(mediumAsteroid[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Medium);
+		initAsteroid(mediumAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Medium);
 	}
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
-		initAsteroid(smallAsteroid[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Small);
+		initAsteroid(smallAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Small);
 	}
 	for (int i = 0; i < maxAuxAsteroids; i++)
 	{
-		auxAsteroid[i].isActive = false;
+		auxAsteroids[i].isActive = false;
 
 	}
 
@@ -125,25 +132,25 @@ void runGame()
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		asteroids[countAsteroids] = bigAsteroid[i];
+		asteroids[countAsteroids] = bigAsteroids[i];
 		countAsteroids++;
 		currentAsteroids++;
 	}
 	for (int i = 0; i < maxMediumAsteroids; i++)
 	{
-		asteroids[countAsteroids] = mediumAsteroid[i];
+		asteroids[countAsteroids] = mediumAsteroids[i];
 		countAsteroids++;
 		currentAsteroids++;
 	}
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
-		asteroids[countAsteroids] = smallAsteroid[i];
+		asteroids[countAsteroids] = smallAsteroids[i];
 		countAsteroids++;
 		currentAsteroids++;
 	}
 	for (int i = 0; i < maxAuxAsteroids; i++)
 	{
-		asteroids[countAsteroids] = auxAsteroid[i];
+		asteroids[countAsteroids] = auxAsteroids[i];
 		countAsteroids++;
 
 	}
@@ -200,6 +207,18 @@ void runGame()
 				}
 			}
 
+			if (spaceman.isActive)
+			{
+				if (!spaceman.isGoingBack)
+				{
+					spaceman.position.x += spaceman.speed.x * GetFrameTime();
+				}
+				else if (spaceman.isGoingBack)
+				{
+					spaceman.position.x -= spaceman.speed.x * GetFrameTime();
+				}
+			}
+
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && ship.isAlive)
 			{
 				PlaySoundMulti(laserShot);
@@ -215,7 +234,7 @@ void runGame()
 
 		for (int i = 0; i < maxAsteroids; i++)
 		{
-			if (CheckCollisionCircles(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
+			if (collisionCircleCircle(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
 			{
 				PlaySoundMulti(shipExplosion);
 				ship.lifes--;
@@ -236,7 +255,7 @@ void runGame()
 		{
 			for (int j = 0; j < maxBullets; j++)
 			{
-				if (CheckCollisionCircles(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
+				if (collisionCircleCircle(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
 				{
 					int randomSound = GetRandomValue(1, 9);
 
@@ -304,25 +323,25 @@ void runGame()
 				countAsteroids = 0;
 				for (int j = 0; j < maxBigAsteroids; j++)
 				{
-					asteroids[countAsteroids] = bigAsteroid[j];
+					asteroids[countAsteroids] = bigAsteroids[j];
 					countAsteroids++;
 					currentAsteroids++;
 				}
 				for (int j = 0; j < maxMediumAsteroids; j++)
 				{
-					asteroids[countAsteroids] = mediumAsteroid[j];
+					asteroids[countAsteroids] = mediumAsteroids[j];
 					countAsteroids++;
 					currentAsteroids++;
 				}
 				for (int j = 0; j < maxSmallAsteroids; j++)
 				{
-					asteroids[countAsteroids] = smallAsteroid[j];
+					asteroids[countAsteroids] = smallAsteroids[j];
 					countAsteroids++;
 					currentAsteroids++;
 				}
 				for (int j = 0; j < maxAuxAsteroids; j++)
 				{
-					asteroids[countAsteroids] = auxAsteroid[j];
+					asteroids[countAsteroids] = auxAsteroids[j];
 					countAsteroids++;
 
 				}
@@ -363,11 +382,11 @@ void runGame()
 
 			break;
 		case Game:
+
 			if (firstLife)
 			{
 				DrawTextEx(titleFont, "Press any key to start", Vector2{ static_cast<float>((GetScreenWidth() / 2) - (anyKeyTextLenght / 2)), static_cast<float>(GetScreenHeight() / 2) }, static_cast<float>(titleFont.baseSize / 2), 0, WHITE);
 			}
-
 
 			if (checkShipDead() && ship.position.x != 0)
 			{
@@ -460,6 +479,7 @@ void runGame()
 	UnloadTexture(rightClick);
 	UnloadTexture(cursor);
 	UnloadTexture(bullet);
+	UnloadTexture(spacemanSprite);
 
 	UnloadFont(font);
 	UnloadFont(titleFont);
@@ -519,6 +539,21 @@ void teleportationBox(Texture2D shipSprite, Texture2D asteroidSprite)
 			asteroids[i].y = 0;
 		if (asteroids[i].y < 0 - asteroidSprite.height / 2)
 			asteroids[i].y = static_cast<float>(GetScreenHeight());
+	}
+
+	if (spaceman.position.x > GetScreenWidth())
+	{
+		spaceman.position.y = spaceman.position.y + 50;
+		spaceman.isGoingBack = true;
+	}
+	if (spaceman.position.x < 0)
+	{
+		spaceman.position.y = spaceman.position.y + 50;
+		spaceman.isGoingBack = false;
+	}
+	if (spaceman.position.y > GetScreenHeight())
+	{
+		spaceman.position.y = 80;
 	}
 
 }
@@ -651,19 +686,17 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 		DrawTexture(shipSprite, 180 + i * 50, 5, WHITE);
 	}
 
-	if (ship.isAlive)
-		DrawCircleLines(static_cast<int>(ship.position.x), static_cast<int>(ship.position.y), static_cast<float>(ship.radius), WHITE);
+
 
 	drawShip(shipSprite, shipSpriteNitro);
 	for (int i = 0; i < maxAsteroids; i++)
 	{
-		if (asteroids[i].isActive)
-		{
-			DrawCircleLines(static_cast<int>(asteroids[i].x), static_cast<int>(asteroids[i].y), static_cast<float>(asteroids[i].radius), WHITE);
-		}
 		drawAsteroid(asteroidSprite, i);
 
 	}
+
+
+	DrawRectangle(static_cast<int>(spaceman.position.x), static_cast<int>(spaceman.position.y), static_cast<int>(spaceman.x), static_cast<int>(spaceman.y), RED);
 
 
 	DrawFPS(10, 10);
@@ -694,5 +727,23 @@ void reset(float& score, int& playOnce)
 	{
 		asteroids[i].isActive = false;
 	}
+}
+
+bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2)
+{
+	float distX = center1.x - center2.x;
+	float distY = center1.y - center2.y;
+
+	float distance = sqrt((distX * distX) + (distY * distY));
+
+	if (distance <= radius1 + radius2)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
 

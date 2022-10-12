@@ -30,6 +30,9 @@
     <ClCompile Include="src\objects\bullets.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
+    <ClCompile Include="src\objects\spaceman.cpp">
+      <Filter>Archivos de recursos</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\objects\asteroid.h">
@@ -42,6 +45,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="src\objects\spaceShip.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\spaceman.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

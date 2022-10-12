@@ -1,5 +1,4 @@
 #include "spaceShip.h"
-#include "raylib.h"
 
 Ship ship;
 

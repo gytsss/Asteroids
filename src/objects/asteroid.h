@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include <iostream>
 
 const int maxBigAsteroids = 2;
 const int maxMediumAsteroids = 3;
