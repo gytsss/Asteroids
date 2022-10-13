@@ -8,7 +8,7 @@ void initSpaceman(Spaceman& spaceMan)
 	spaceMan.x = 20;
 	spaceMan.y = 47;
 	spaceMan.position = { 10, 80 };
-	spaceMan.lifes = 20;
+	spaceMan.lifes = 25;
 	spaceMan.isGoingBack = false;
 	spaceMan.isActive = true;
 

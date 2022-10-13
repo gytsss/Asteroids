@@ -3,7 +3,7 @@
 
 #include "spaceShip.h"
 
-const int maxBullets = 15;
+const int maxBullets = 20;
 
 struct Bullet
 {
