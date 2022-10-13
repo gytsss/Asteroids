@@ -18,6 +18,7 @@ extern Asteroid asteroids[maxAsteroids];
 extern Bullet bullets[maxBullets];
 
 extern Spaceman spaceman;
+extern Spaceman menuSpaceman;
 
 static void reset(float& score, int& playOnce);
 
@@ -109,6 +110,10 @@ void runGame()
 	SetSoundVolume(gameOver, 0.3f);
 
 	initSpaceman(spaceman);
+	initSpaceman(menuSpaceman);
+
+	menuSpaceman.position = {65, 40 };
+	menuSpaceman.speed.x = 100;
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
@@ -156,7 +161,7 @@ void runGame()
 
 	int currentBullets = 0;
 
-	int currentScreen = Options2;
+	int currentScreen = Menu;
 	float score = 0.0f;
 	bool firstLife = true;
 	int playOnce = 0;
@@ -184,6 +189,15 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
+		if (!menuSpaceman.isGoingBack)
+		{
+			menuSpaceman.position.x += menuSpaceman.speed.x * GetFrameTime();
+		}
+		else if (menuSpaceman.isGoingBack)
+		{
+			menuSpaceman.position.x -= menuSpaceman.speed.x * GetFrameTime();
+		}
+
 		teleportationBox(shipSprite, asteroidSprite);
 
 		for (int i = 0; i < maxBullets; i++)
@@ -191,7 +205,6 @@ void runGame()
 			if (bullets[i].x > GetScreenWidth() || bullets[i].x < 0 || bullets[i].y < 0 || bullets[i].y > GetScreenHeight())
 				bullets[i].isActive = false;
 		}
-
 
 		if (!pause && currentScreen == Game)
 		{
@@ -408,7 +421,7 @@ void runGame()
 		case Menu:
 
 			menuBoxes(currentScreen, playButton, pauseButton, creditButton, quitButton);
-			drawMenu(playButton, pauseButton, creditButton, quitButton, titleFont);
+			drawMenu(playButton, pauseButton, creditButton, quitButton, titleFont, spacemanSprite, frameWidth, frameHeight, frame);
 
 			break;
 		case Game:
@@ -563,6 +576,17 @@ void teleportationBox(Texture2D shipSprite, Texture2D asteroidSprite)
 		spaceman.position.y = 80;
 	}
 
+	if (menuSpaceman.position.x > 930)
+	{
+		menuSpaceman.isGoingBack = true;
+	}
+	if (menuSpaceman.position.x < 65)
+	{
+		
+		menuSpaceman.isGoingBack = false;
+	}
+	
+
 }
 
 void drawCursor(Texture2D cursor, Vector2 mousePosition)
@@ -593,7 +617,7 @@ void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, 
 		currentScreen = Quit;
 }
 
-void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont)
+void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame)
 {
 	int titleLength = static_cast<int>(MeasureTextEx(titleFont, "Remasteroids", static_cast<float>(titleFont.baseSize), 0).x);
 
@@ -605,6 +629,23 @@ void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButto
 	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2 - titleLength / 2), 90, titleLength, 90, WHITE);
 
 	DrawTextEx(titleFont, "Remasteroids", Vector2{ static_cast<float>(GetScreenWidth() / 2 - titleLength / 2), 100 }, static_cast<float>(titleFont.baseSize), 0, WHITE);
+
+	
+
+	if (!menuSpaceman.isGoingBack)
+	{
+		DrawTextureRec(spacemanSprite,
+			Rectangle{ (frameWidth * frame) + 12, static_cast<float>(spacemanSprite.height / 3.25), frameWidth, frameHeight },
+			menuSpaceman.position,
+			WHITE);
+	}
+	else if (menuSpaceman.isGoingBack)
+	{
+		DrawTextureRec(spacemanSprite,
+			Rectangle{ (frameWidth * frame) + 12 , static_cast<float>(spacemanSprite.height / 1.24), frameWidth, frameHeight },
+			menuSpaceman.position,
+			WHITE);
+	}
 
 }
 
@@ -713,7 +754,7 @@ void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		Vector2{ GetScreenWidth() / 2 - textLength / 2, 50 },
 		static_cast<float>(gameFont.baseSize), 0, WHITE);
 
-	DrawRectangleLines(GetScreenWidth() / 2 - 200, 200, 100, 100, WHITE);
+	
 	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 180), 170}, static_cast<float>(font.baseSize / 1.2), 0, RED);
 	
 	DrawTexturePro(asteroidSprite,
@@ -723,7 +764,7 @@ void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		0,
 		WHITE);
 
-	DrawRectangleLines(GetScreenWidth() / 2 - 26, 226, 53, 53, WHITE);
+	
 	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 20), 205 }, static_cast<float>(font.baseSize / 1.8), 0, RED);
 	
 	DrawTexturePro(asteroidSprite,
@@ -733,7 +774,7 @@ void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		0,
 		WHITE);
 
-	DrawRectangleLines(GetScreenWidth() / 2 + 105, 235, 30, 30, WHITE);
+	
 	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 + 105), 220 }, static_cast<float>(font.baseSize / 2.4), 0, RED);
 	
 	DrawTexturePro(asteroidSprite,
@@ -744,7 +785,6 @@ void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		WHITE);
 
 
-	DrawRectangleLines(GetScreenWidth() / 2 - 48 , 366, 96, 128, WHITE);
 	DrawTextEx(gameFont, TextFormat("20 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 53), 333 }, static_cast<float>(font.baseSize / 1.2), 0, RED);
 	
 	DrawTexturePro(spacemanSpriteFront,
@@ -754,11 +794,8 @@ void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		0,
 		WHITE);
 
-	//DrawLine(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), WHITE);
-
-
-
-	DrawTextEx(titleFont, TextFormat("20 Hp"), Vector2{ 525, 900 }, static_cast<float>(font.baseSize), 0, RED);
+	
+	DrawTextEx(titleFont, TextFormat("When one of these kills you, you\nhave to press 'SPACE' to respawn.\n                Be careful..."), Vector2{ 50, 550 }, static_cast<float>(font.baseSize), 0, WHITE);
 
 }
 

@@ -1,6 +1,7 @@
 #include "spaceman.h"
 
 Spaceman spaceman;
+Spaceman menuSpaceman;
 
 void initSpaceman(Spaceman& spaceMan)
 {

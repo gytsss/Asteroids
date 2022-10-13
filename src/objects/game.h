@@ -26,7 +26,7 @@ void drawCursor(Texture2D cursor, Vector2 mousePosition);
 
 void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton);
 
-void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont);
+void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame);
 
 void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons);
 
