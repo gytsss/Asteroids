@@ -36,3 +36,30 @@ void drawSpaceman(Texture2D spacemanSprite, float frameWidth, float frameHeight,
 		}
 	}
 }
+
+void spacemanMovement()
+{
+	if (spaceman.isActive)
+	{
+		if (!spaceman.isGoingBack)
+		{
+			spaceman.position.x += spaceman.speed.x * GetFrameTime();
+		}
+		else if (spaceman.isGoingBack)
+		{
+			spaceman.position.x -= spaceman.speed.x * GetFrameTime();
+		}
+	}
+}
+
+void menuSpacemanMovement()
+{
+	if (!menuSpaceman.isGoingBack)
+	{
+		menuSpaceman.position.x += menuSpaceman.speed.x * GetFrameTime();
+	}
+	else if (menuSpaceman.isGoingBack)
+	{
+		menuSpaceman.position.x -= menuSpaceman.speed.x * GetFrameTime();
+	}
+}

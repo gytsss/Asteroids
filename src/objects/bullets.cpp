@@ -39,3 +39,15 @@ void drawBullets(Texture2D bullet)
 		}
 	}
 }
+
+void bulletsMovement()
+{
+	for (int i = 0; i < maxBullets; i++)
+	{
+		if (bullets[i].isActive)
+		{
+			bullets[i].x += bullets[i].speed.x * GetFrameTime() * 300;
+			bullets[i].y += bullets[i].speed.y * GetFrameTime() * 300;
+		}
+	}
+}

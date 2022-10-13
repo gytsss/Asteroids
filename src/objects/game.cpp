@@ -20,7 +20,38 @@ extern Bullet bullets[maxBullets];
 extern Spaceman spaceman;
 extern Spaceman menuSpaceman;
 
+
+
 static void reset(float& score, int& playOnce, bool& isWhipPowerUpOn);
+static void pauseMode(Texture2D playButton, Texture2D quitButton, Vector2 mousePosition, bool& pause, bool& firstLife, int& currentScreen, int& playOnce, float& score, bool& isWhipPowerUpOn);
+static void teleportationBox(Texture2D shipSprite, Texture2D asteroidSprite);
+static void input(Vector2 normalizeDirect);
+static void shotLogic(bool isWhipPowerUpOn, int& currentBullets, Vector2 vectorDirection, Sound laserShot);
+static void respawn();
+
+
+static bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2);
+static void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosion3, Sound explosion4, Sound explosion5, Sound explosion6, Sound explosion7, Sound explosion8, Sound explosion9, float& score, Sound pickLife);
+static void collisionShipSpaceman(Sound shipExplosion);
+static void collisionShipAsteroids(bool& isWhipPowerUpOn, Sound shipExplosion);
+static void collisionSpacemanBullets(bool& isWhipPowerUpOn);
+
+
+static void drawCursor(Texture2D cursor, Vector2 mousePosition);
+static void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame, Texture2D bullet);
+static void drawMenu(Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame);
+static void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButtons);
+static void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick);
+static void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D spacemanSpriteFront, Texture2D asteroidSprite);
+static void drawOptions3(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D stonks);
+
+static void menuBoxes(int& currentScreen, Texture2D playButton, Texture2D pauseButton, Texture2D creditButton, Texture2D quitButton);
+static void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCreditButtons);
+static void optionsBoxes(int& currentScreen, Texture2D smallCreditButtons);
+static void options2Boxes(int& currentScreen, Texture2D smallCreditButtons);
+static void options3Boxes(int& currentScreen, Texture2D smallCreditButtons);
+
+
 
 void runGame()
 {
@@ -73,7 +104,6 @@ void runGame()
 	Sound pickLife = LoadSound("res/pickLife.wav");
 
 	Music music = LoadMusicStream("res/music.mp3");
-
 
 
 	pauseButton.width = pauseButton.width / 2;
@@ -148,50 +178,10 @@ void runGame()
 
 
 
-	for (int i = 0; i < maxBigAsteroids; i++)
-	{
-		initAsteroid(bigAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Big);
-	}
-	for (int i = 0; i < maxMediumAsteroids; i++)
-	{
-		initAsteroid(mediumAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Medium);
-	}
-	for (int i = 0; i < maxSmallAsteroids; i++)
-	{
-		initAsteroid(smallAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Small);
-	}
-	for (int i = 0; i < maxAuxAsteroids; i++)
-	{
-		auxAsteroids[i].isActive = false;
+	initAllAsteroids();
 
-	}
+	organizeAsteroids(countAsteroids);
 
-
-	for (int i = 0; i < maxBigAsteroids; i++)
-	{
-		asteroids[countAsteroids] = bigAsteroids[i];
-		countAsteroids++;
-
-	}
-	for (int i = 0; i < maxMediumAsteroids; i++)
-	{
-		asteroids[countAsteroids] = mediumAsteroids[i];
-		countAsteroids++;
-	}
-	for (int i = 0; i < maxSmallAsteroids; i++)
-	{
-		asteroids[countAsteroids] = smallAsteroids[i];
-		countAsteroids++;
-	}
-	for (int i = 0; i < maxAuxAsteroids; i++)
-	{
-		asteroids[countAsteroids] = auxAsteroids[i];
-		countAsteroids++;
-
-	}
-
-
-	
 	
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -209,159 +199,42 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
-		if (!menuSpaceman.isGoingBack)
-		{
-			menuSpaceman.position.x += menuSpaceman.speed.x * GetFrameTime();
-		}
-		else if (menuSpaceman.isGoingBack)
-		{
-			menuSpaceman.position.x -= menuSpaceman.speed.x * GetFrameTime();
-		}
+		 menuSpacemanMovement();
 
 		teleportationBox(shipSprite, asteroidSprite);
 
-		for (int i = 0; i < maxBullets; i++)
-		{
-			if (bullets[i].x > GetScreenWidth() || bullets[i].x < 0 || bullets[i].y < 0 || bullets[i].y > GetScreenHeight())
-				bullets[i].isActive = false;
-		}
+		
 
 		if (!pause && currentScreen == Game)
 		{
 			input(normalizeDirect);
 			ship.rotation = angle;
 
-			for (int i = 0; i < maxAsteroids; i++)
-			{
-				asteroids[i].x += asteroids[i].speed.x * GetFrameTime();
-				asteroids[i].y += asteroids[i].speed.y * GetFrameTime();
-				asteroids[i].rotation++;
-			}
+			asteroidsMovement();
 
-			for (int i = 0; i < maxBullets; i++)
-			{
-				if (bullets[i].isActive)
-				{
-					bullets[i].x += bullets[i].speed.x * GetFrameTime() * 300;
-					bullets[i].y += bullets[i].speed.y * GetFrameTime() * 300;
-				}
-			}
+			bulletsMovement();
 
-			if (spaceman.isActive)
-			{
-				if (!spaceman.isGoingBack)
-				{
-					spaceman.position.x += spaceman.speed.x * GetFrameTime();
-				}
-				else if (spaceman.isGoingBack)
-				{
-					spaceman.position.x -= spaceman.speed.x * GetFrameTime();
-				}
-			}
+			spacemanMovement();
 
-			if (!isWhipPowerUpOn)
-			{
-				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && ship.isAlive)
-				{
-					PlaySoundMulti(laserShot);
-
-					if (currentBullets >= maxBullets)
-						currentBullets = 0;
-
-					bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
-					currentBullets++;
-
-				}
-
-			}
-			else if (isWhipPowerUpOn)
-			{
-				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && ship.isAlive)
-				{
-					PlaySoundMulti(laserShot);
-
-					if (currentBullets >= maxBullets)
-						currentBullets = 0;
-
-					bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
-					currentBullets++;
-
-				}
-			}
+			shotLogic(isWhipPowerUpOn, currentBullets, vectorDirection, laserShot);
 		}
 
-		if (CheckCollisionCircleRec(ship.position, static_cast<float>(ship.radius), Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && ship.isAlive && spaceman.isActive)
-		{
-			PlaySoundMulti(shipExplosion);
-			ship.lifes -= 2;
-			ship.isAlive = false;
-		}
+		collisionShipSpaceman(shipExplosion);
 
-		for (int i = 0; i < maxAsteroids; i++)
-		{
-			if (collisionCircleCircle(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
-			{
-				PlaySoundMulti(shipExplosion);
-				ship.lifes--;
-				ship.isAlive = false;
-				isWhipPowerUpOn = false;
-			}
+		collisionShipAsteroids( isWhipPowerUpOn, shipExplosion);
 
-		}
-		if (IsKeyReleased(KEY_SPACE) && !ship.isAlive)
-		{
-			ship.isAlive = true;
-			ship.position.x = static_cast<float>(GetScreenWidth() / 2);
-			ship.position.y = static_cast<float>(GetScreenHeight() / 2);
-			ship.speed = { 0,0 };
+		respawn();
 
-		}
-		for (int i = 0; i < maxBullets; i++)
-		{
-			if (CheckCollisionCircleRec(Vector2{ bullets[i].x , bullets[i].y }, bullets[i].radius, Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && bullets[i].isActive && spaceman.isActive)
-			{
-				spaceman.lifes--;
-				bullets[i].isActive = false;
-
-				if (spaceman.lifes <= 0)
-				{
-					spaceman.isActive = false;
-					isWhipPowerUpOn = true;
-				}
-			}
-		}
-
+		collisionSpacemanBullets(isWhipPowerUpOn);
 
 		collisionAsteroidsBullets(explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7, explosion8, explosion9, score, pickLife);
 
 		if (anyAsteroidAlive())
 		{
 			countAsteroids = 0;
-			for (int i = 0; i < maxBigAsteroids; i++)
-			{
-				asteroids[countAsteroids] = bigAsteroids[i];
-				countAsteroids++;
-			}
-			for (int i = 0; i < maxMediumAsteroids; i++)
-			{
-				asteroids[countAsteroids] = mediumAsteroids[i];
-				countAsteroids++;
-			}
-			for (int i = 0; i < maxSmallAsteroids; i++)
-			{
-				asteroids[countAsteroids] = smallAsteroids[i];
-				countAsteroids++;
-			}
-			for (int i = 0; i < maxAuxAsteroids; i++)
-			{
-				asteroids[countAsteroids] = auxAsteroids[i];
-				countAsteroids++;
-
-			}
+			organizeAsteroids(countAsteroids);
 		}
 
-		
-		
 		if (isWhipPowerUpOn)
 		{
 			powerUpTimer++;
@@ -446,16 +319,22 @@ void runGame()
 
 			break;
 		case Options:
+
 			optionsBoxes(currentScreen, smallCreditButtons);
 			drawOptions(smallCreditButtons, font, titleFont, leftClick, rightClick);
+
 			break;
 		case Options2:
+
 			options2Boxes(currentScreen, smallCreditButtons);
 			drawOptions2(smallCreditButtons, font, titleFont, gameFont, spacemanSpriteFront, asteroidSprite);
+
 			break;
 		case Options3:
+
 			options3Boxes( currentScreen, smallCreditButtons);
 			drawOptions3( smallCreditButtons,font, titleFont, gameFont, stonks);
+
 			break;
 		case Credits:
 
@@ -554,6 +433,12 @@ void teleportationBox(Texture2D shipSprite, Texture2D asteroidSprite)
 			asteroids[i].y = 0;
 		if (asteroids[i].y < 0 - asteroidSprite.height / 2)
 			asteroids[i].y = static_cast<float>(GetScreenHeight());
+	}
+
+	for (int i = 0; i < maxBullets; i++)
+	{
+		if (bullets[i].x > GetScreenWidth() || bullets[i].x < 0 || bullets[i].y < 0 || bullets[i].y > GetScreenHeight())
+			bullets[i].isActive = false;
 	}
 
 	if (spaceman.position.x > GetScreenWidth())
@@ -1038,3 +923,90 @@ void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosi
 	}
 }
 
+void shotLogic(bool isWhipPowerUpOn, int& currentBullets, Vector2 vectorDirection, Sound laserShot)
+{
+	if (!isWhipPowerUpOn)
+	{
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && ship.isAlive)
+		{
+			PlaySoundMulti(laserShot);
+
+			if (currentBullets >= maxBullets)
+				currentBullets = 0;
+
+			bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
+			currentBullets++;
+
+		}
+
+	}
+	else if (isWhipPowerUpOn)
+	{
+		if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && ship.isAlive)
+		{
+			PlaySoundMulti(laserShot);
+
+			if (currentBullets >= maxBullets)
+				currentBullets = 0;
+
+			bullets[currentBullets] = initBullet(bullets[currentBullets], ship, vectorDirection);
+			currentBullets++;
+
+		}
+	}
+}
+
+void collisionShipSpaceman(Sound shipExplosion)
+{
+	if (CheckCollisionCircleRec(ship.position, static_cast<float>(ship.radius), Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && ship.isAlive && spaceman.isActive)
+	{
+		PlaySoundMulti(shipExplosion);
+		ship.lifes -= 2;
+		ship.isAlive = false;
+	}
+}
+
+void collisionShipAsteroids(bool& isWhipPowerUpOn, Sound shipExplosion)
+{
+	for (int i = 0; i < maxAsteroids; i++)
+	{
+		if (collisionCircleCircle(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
+		{
+			PlaySoundMulti(shipExplosion);
+			ship.lifes--;
+			ship.isAlive = false;
+			isWhipPowerUpOn = false;
+		}
+
+	}
+}
+
+void respawn()
+{
+	if (IsKeyReleased(KEY_SPACE) && !ship.isAlive)
+	{
+		ship.isAlive = true;
+		ship.position.x = static_cast<float>(GetScreenWidth() / 2);
+		ship.position.y = static_cast<float>(GetScreenHeight() / 2);
+		ship.speed = { 0,0 };
+
+	}
+}
+
+void collisionSpacemanBullets(bool& isWhipPowerUpOn)
+{
+	for (int i = 0; i < maxBullets; i++)
+	{
+		if (CheckCollisionCircleRec(Vector2{ bullets[i].x , bullets[i].y }, bullets[i].radius, Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && bullets[i].isActive && spaceman.isActive)
+		{
+			spaceman.lifes--;
+			bullets[i].isActive = false;
+
+			if (spaceman.lifes <= 0)
+			{
+				spaceman.isActive = false;
+				isWhipPowerUpOn = true;
+			}
+		}
+	}
+}

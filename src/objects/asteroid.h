@@ -35,3 +35,9 @@ void drawAsteroid( Texture2D asteroidSprite, int i);
 void separateAsteroids( int i);
 
 bool anyAsteroidAlive();
+
+void organizeAsteroids(int& countAsteroids);
+
+void asteroidsMovement();
+
+void initAllAsteroids();

@@ -121,3 +121,61 @@ bool anyAsteroidAlive()
 
 	return true;
 }
+
+void organizeAsteroids(int& countAsteroids)
+{
+
+	for (int i = 0; i < maxBigAsteroids; i++)
+	{
+		asteroids[countAsteroids] = bigAsteroids[i];
+		countAsteroids++;
+
+	}
+	for (int i = 0; i < maxMediumAsteroids; i++)
+	{
+		asteroids[countAsteroids] = mediumAsteroids[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxSmallAsteroids; i++)
+	{
+		asteroids[countAsteroids] = smallAsteroids[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxAuxAsteroids; i++)
+	{
+		asteroids[countAsteroids] = auxAsteroids[i];
+		countAsteroids++;
+
+	}
+}
+
+void asteroidsMovement()
+{
+	for (int i = 0; i < maxAsteroids; i++)
+	{
+		asteroids[i].x += asteroids[i].speed.x * GetFrameTime();
+		asteroids[i].y += asteroids[i].speed.y * GetFrameTime();
+		asteroids[i].rotation++;
+	}
+}
+
+void initAllAsteroids()
+{
+	for (int i = 0; i < maxBigAsteroids; i++)
+	{
+		initAsteroid(bigAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Big);
+	}
+	for (int i = 0; i < maxMediumAsteroids; i++)
+	{
+		initAsteroid(mediumAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Medium);
+	}
+	for (int i = 0; i < maxSmallAsteroids; i++)
+	{
+		initAsteroid(smallAsteroids[i], static_cast<float>(GetRandomValue(10, 500)), static_cast<float>(GetRandomValue(10, 500)), 0, AsteroidSize::Small);
+	}
+	for (int i = 0; i < maxAuxAsteroids; i++)
+	{
+		auxAsteroids[i].isActive = false;
+
+	}
+}

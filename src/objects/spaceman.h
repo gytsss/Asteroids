@@ -16,3 +16,7 @@ struct Spaceman
 void initSpaceman(Spaceman& spaceman);
 
 void drawSpaceman(Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame);
+
+void spacemanMovement();
+
+void menuSpacemanMovement();
