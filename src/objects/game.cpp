@@ -177,7 +177,6 @@ void runGame()
 	int powerUpTimer = 0;
 
 
-
 	initAllAsteroids();
 
 	organizeAsteroids(countAsteroids);
@@ -199,7 +198,7 @@ void runGame()
 		normalizeDirect = { vectorDirection.x / vectorModule, vectorDirection.y / vectorModule };
 
 
-		 menuSpacemanMovement();
+		menuSpacemanMovement();
 
 		teleportationBox(shipSprite, asteroidSprite);
 
@@ -233,6 +232,13 @@ void runGame()
 		{
 			countAsteroids = 0;
 			organizeAsteroids(countAsteroids);
+		}
+
+		if (!spaceman.isActive && spaceman.lifes <= 0 && !isWhipPowerUpOn)
+		{
+			spaceman.isActive = true;
+			spaceman.lifes = 2;
+			spaceman.position = { 10, 80 };
 		}
 
 		if (isWhipPowerUpOn)
