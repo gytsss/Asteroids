@@ -11,6 +11,7 @@ enum Screen
 	Menu,
 	Game,
 	Options,
+	Options2,
 	Credits,
 	Quit
 };
@@ -35,6 +36,12 @@ void optionsBoxes(int &currentScreen, Texture2D smallCreditButtons);
 
 void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick);
 
-void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont);
+void options2Boxes(int& currentScreen, Texture2D smallCreditButtons);
+
+void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D spacemanSpriteFront, Texture2D asteroidSprite);
+
+void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame, Texture2D bullet);
 
 bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2);
+
+void pauseMode(Texture2D playButton, Texture2D quitButton, Vector2 mousePosition, bool& pause, bool& firstLife, int& currentScreen, int& playOnce, float& score);

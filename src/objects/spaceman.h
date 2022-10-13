@@ -8,8 +8,11 @@ struct Spaceman
 	float y;
 	bool isGoingBack;
 	bool isActive;
+	int lifes;
 	Vector2 position;
 	Vector2 speed;
 };
 
 void initSpaceman(Spaceman& spaceman);
+
+void drawSpaceman(Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame);

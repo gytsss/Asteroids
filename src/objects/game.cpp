@@ -49,6 +49,7 @@ void runGame()
 	Texture2D rightClick = LoadTexture("res/rightclick.png");
 	Texture2D bullet = LoadTexture("res/laserBullet.png");
 	Texture2D spacemanSprite = LoadTexture("res/spaceman.png");
+	Texture2D spacemanSpriteFront = LoadTexture("res/spacemanFront.png");
 
 	Font font = LoadFontEx("res/font.ttf", 40, 0, 0);
 	Font titleFont = LoadFontEx("res/titleFont.ttf", 100, 0, 0);
@@ -128,25 +129,23 @@ void runGame()
 	}
 
 	int countAsteroids = 0;
-	int currentAsteroids = 0;
+
 
 	for (int i = 0; i < maxBigAsteroids; i++)
 	{
 		asteroids[countAsteroids] = bigAsteroids[i];
 		countAsteroids++;
-		currentAsteroids++;
+
 	}
 	for (int i = 0; i < maxMediumAsteroids; i++)
 	{
 		asteroids[countAsteroids] = mediumAsteroids[i];
 		countAsteroids++;
-		currentAsteroids++;
 	}
 	for (int i = 0; i < maxSmallAsteroids; i++)
 	{
 		asteroids[countAsteroids] = smallAsteroids[i];
 		countAsteroids++;
-		currentAsteroids++;
 	}
 	for (int i = 0; i < maxAuxAsteroids; i++)
 	{
@@ -157,10 +156,18 @@ void runGame()
 
 	int currentBullets = 0;
 
-	int currentScreen = Menu;
+	int currentScreen = Options2;
 	float score = 0.0f;
-	float firstLife = true;
+	bool firstLife = true;
 	int playOnce = 0;
+
+
+	float frameWidth = static_cast<float>(spacemanSprite.width / 3);
+	float frameHeight = static_cast<float>(spacemanSprite.height / 4);
+	int maxFrames = static_cast<int>(spacemanSprite.width / frameWidth);
+
+	float timer = 0.0f;
+	int frame = 0;
 
 	while (!WindowShouldClose() && !gameFinish)
 	{
@@ -232,6 +239,13 @@ void runGame()
 			}
 		}
 
+		if (CheckCollisionCircleRec(ship.position, static_cast<float>(ship.radius), Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && ship.isAlive && spaceman.isActive)
+		{
+			PlaySoundMulti(shipExplosion);
+			ship.lifes -= 2;
+			ship.isAlive = false;
+		}
+
 		for (int i = 0; i < maxAsteroids; i++)
 		{
 			if (collisionCircleCircle(Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius), Vector2{ static_cast<float>(ship.position.x) , static_cast<float>(ship.position.y) }, static_cast<float>(ship.radius)) && ship.isAlive && asteroids[i].isActive)
@@ -255,6 +269,12 @@ void runGame()
 		{
 			for (int j = 0; j < maxBullets; j++)
 			{
+				if (CheckCollisionCircleRec(Vector2{ bullets[j].x , bullets[j].y }, bullets[j].radius, Rectangle{ spaceman.position.x,spaceman.position.y, spaceman.x, spaceman.y }) && bullets[j].isActive && spaceman.isActive)
+				{
+					spaceman.lifes--;
+					bullets[j].isActive = false;
+				}
+
 				if (collisionCircleCircle(Vector2{ static_cast<float>(bullets[j].x) , static_cast<float>(bullets[j].y) }, bullets[j].radius, Vector2{ static_cast<float>(asteroids[i].x) , static_cast<float>(asteroids[i].y) }, static_cast<float>(asteroids[i].radius)) && asteroids[i].isActive && bullets[j].isActive)
 				{
 					int randomSound = GetRandomValue(1, 9);
@@ -310,48 +330,60 @@ void runGame()
 
 					asteroids[i].isActive = false;
 					bullets[j].isActive = false;
-					currentAsteroids--;
 
-					separateAsteroids(currentAsteroids, i);
-
-				}
-
-			}
-
-			if (currentAsteroids == 0)
-			{
-				countAsteroids = 0;
-				for (int j = 0; j < maxBigAsteroids; j++)
-				{
-					asteroids[countAsteroids] = bigAsteroids[j];
-					countAsteroids++;
-					currentAsteroids++;
-				}
-				for (int j = 0; j < maxMediumAsteroids; j++)
-				{
-					asteroids[countAsteroids] = mediumAsteroids[j];
-					countAsteroids++;
-					currentAsteroids++;
-				}
-				for (int j = 0; j < maxSmallAsteroids; j++)
-				{
-					asteroids[countAsteroids] = smallAsteroids[j];
-					countAsteroids++;
-					currentAsteroids++;
-				}
-				for (int j = 0; j < maxAuxAsteroids; j++)
-				{
-					asteroids[countAsteroids] = auxAsteroids[j];
-					countAsteroids++;
+					separateAsteroids(i);
 
 				}
+
 			}
 
 		}
 
+		if (anyAsteroidAlive())
+		{
+			countAsteroids = 0;
+			for (int i = 0; i < maxBigAsteroids; i++)
+			{
+				asteroids[countAsteroids] = bigAsteroids[i];
+				countAsteroids++;
+			}
+			for (int i = 0; i < maxMediumAsteroids; i++)
+			{
+				asteroids[countAsteroids] = mediumAsteroids[i];
+				countAsteroids++;
+			}
+			for (int i = 0; i < maxSmallAsteroids; i++)
+			{
+				asteroids[countAsteroids] = smallAsteroids[i];
+				countAsteroids++;
+			}
+			for (int i = 0; i < maxAuxAsteroids; i++)
+			{
+				asteroids[countAsteroids] = auxAsteroids[i];
+				countAsteroids++;
+
+			}
+		}
+
+		if (spaceman.lifes <= 0)
+			spaceman.isActive = false;
+
 
 		float anyKeyTextLenght = MeasureTextEx(titleFont, "Press any key to start", static_cast<float>(titleFont.baseSize / 2), 0).x;
 		Vector2 deadTextLenght = MeasureTextEx(gameFont, "Game Over", static_cast<float>(gameFont.baseSize), 0);
+
+		timer += GetFrameTime();
+
+		if (timer >= 0.15)
+		{
+			timer = 0;
+			frame += 1;
+		}
+
+		if (!spaceman.isGoingBack)
+		{
+			frame = frame % maxFrames;
+		}
 
 		int anyKey = GetCharPressed();
 		if (anyKey > 0 && firstLife)
@@ -365,8 +397,6 @@ void runGame()
 			ship.isAlive = false;
 
 		}
-
-
 
 		BeginDrawing();
 
@@ -407,45 +437,21 @@ void runGame()
 				}
 			}
 
-			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro, titleFont);
-
-			for (int i = 0; i < maxBullets; i++)
-			{
-				if (bullets[i].isActive)
-				{
-					DrawTexturePro(bullet,
-						Rectangle{ 0, 0, static_cast<float>(bullet.width) ,static_cast<float>(bullet.height) },
-						Rectangle{ static_cast<float>(bullets[i].x) , static_cast<float>(bullets[i].y), 70, 70 },
-						Vector2{ 70 / 2, 70 / 2 },
-						bullets[i].rotation,
-						WHITE);
-				}
-			}
+			drawGame(shipSprite, asteroidSprite, smallPauseButton, score, shipSpriteNitro, titleFont, spacemanSprite, frameWidth, frameHeight, frame, bullet);
 
 			if (CheckCollisionPointRec(mousePosition, Rectangle{ -3, static_cast<float>(GetScreenHeight() - 45), static_cast<float>(pauseButton.width) , static_cast<float>(pauseButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 				pause = !pause;
 
-			if (pause)
-			{
-				DrawTexture(playButton, GetScreenWidth() / 2 - quitButton.width / 2, 275, WHITE);
-				DrawTexture(quitButton, GetScreenWidth() / 2 - quitButton.width / 2, 425, WHITE);
-
-				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - playButton.width / 2), 275, static_cast<float>(playButton.width) , static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-					pause = !pause;
-				if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - quitButton.width / 2), 425, static_cast<float>(quitButton.width) ,static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-				{
-					currentScreen = Menu;
-					reset(score, playOnce);
-					pause = !pause;
-					firstLife = true;
-				}
-
-			}
+			pauseMode(playButton, quitButton, mousePosition, pause, firstLife, currentScreen, playOnce, score);
 
 			break;
 		case Options:
 			optionsBoxes(currentScreen, smallCreditButtons);
 			drawOptions(smallCreditButtons, font, titleFont, leftClick, rightClick);
+			break;
+		case Options2:
+			options2Boxes(currentScreen, smallCreditButtons);
+			drawOptions2(smallCreditButtons, font, titleFont, gameFont, spacemanSpriteFront, asteroidSprite);
 			break;
 		case Credits:
 
@@ -480,6 +486,7 @@ void runGame()
 	UnloadTexture(cursor);
 	UnloadTexture(bullet);
 	UnloadTexture(spacemanSprite);
+	UnloadTexture(spacemanSpriteFront);
 
 	UnloadFont(font);
 	UnloadFont(titleFont);
@@ -504,7 +511,7 @@ void runGame()
 
 void input(Vector2 normalizeDirect)
 {
-	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
+	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && ship.isAlive)
 	{
 		ship.speed.x += normalizeDirect.x;
 		ship.speed.y += normalizeDirect.y;
@@ -609,7 +616,10 @@ void creditBoxes(int& currentScreen, Texture2D creditButtons, Texture2D smallCre
 	Rectangle creditBox3 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 350, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
 	Rectangle creditBox4 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 450, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
 	Rectangle creditBox5 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 550, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
+	Rectangle creditBox6 = { static_cast<float>(GetScreenWidth() / 2 - creditButtons.width / 2), 50, static_cast<float>(creditButtons.width), static_cast<float>(creditButtons.height) };
 
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox6)))
+		OpenURL("https://opengameart.org/node/78354");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox)))
 		OpenURL("https://opengameart.org/content/a-layered-asteroid-rock");
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), creditBox1)))
@@ -631,8 +641,10 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	float creditTextLenght1 = static_cast<float>(MeasureTextEx(font, "Font by openikino", static_cast<float>(font.baseSize), 0).x);
 	float creditTextLenght2 = static_cast<float>(MeasureTextEx(font, "Laser sound by Dklon", static_cast<float>(font.baseSize), 0).x);
 	float creditTextLenght3 = static_cast<float>(MeasureTextEx(font, "Explosion sounds by Viktor.Hahn", static_cast<float>(font.baseSize / 1.22), 0).x);
-	float creditTextLenght4 = static_cast<float>(MeasureTextEx(font, "Itch.io", static_cast<float>(font.baseSize), 0).x);
+	float creditTextLenght4 = static_cast<float>(MeasureTextEx(font, "Spaceman by DoubleU Creativity", static_cast<float>(font.baseSize / 1.22), 0).x);
+	float creditTextLenght5 = static_cast<float>(MeasureTextEx(font, "Itch.io", static_cast<float>(font.baseSize), 0).x);
 
+	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 50, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 150, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 250, WHITE);
 	DrawTexture(creditButtons, GetScreenWidth() / 2 - creditButtons.width / 2, 350, WHITE);
@@ -641,30 +653,36 @@ void drawCredits(Font font, Texture2D creditButtons, Texture2D smallCreditButton
 	DrawTextureEx(smallCreditButtons, Vector2{ -3, static_cast<float>(GetScreenHeight() - 70) }, 0, 1, WHITE);
 
 
+	DrawTextEx(font, TextFormat("Spaceman by DoubleU Creativity"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght4 / 2), 70 }, static_cast<float>(font.baseSize / 1.22), 0, AQUA);
 	DrawTextEx(font, TextFormat("Asteroid by FunwithPixels"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght / 2)  , 170 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Font by openikino"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght1 / 2)  , 270 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Laser Sound by Dklon"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght2 / 2)  , 370 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Explosion sounds by Viktor.Hahn"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght3 / 2)  , 470 }, static_cast<float>(font.baseSize / 1.22), 0, AQUA);
-	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght4 / 2), 570 }, static_cast<float>(font.baseSize), 0, AQUA);
+	DrawTextEx(font, TextFormat("Itch.io"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - creditTextLenght5 / 2), 570 }, static_cast<float>(font.baseSize), 0, AQUA);
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
 }
 
 void optionsBoxes(int& currentScreen, Texture2D smallCreditButtons)
 {
 	Rectangle optionsBox = { -3, static_cast<float>(GetScreenHeight() - 70), static_cast<float>(smallCreditButtons.width), static_cast<float>(smallCreditButtons.height) };
+	Rectangle optionsBox1 = { static_cast<float>(GetScreenWidth() - smallCreditButtons.width), static_cast<float>(GetScreenHeight() - 70), static_cast<float>(smallCreditButtons.width), static_cast<float>(smallCreditButtons.height) };
 
 	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), optionsBox)))
 		currentScreen = Menu;
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), optionsBox1)))
+		currentScreen = Options2;
 }
 
 void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Texture2D leftClick, Texture2D rightClick)
 {
+	DrawTextureEx(smallCreditButtons, Vector2{ static_cast<float>(GetScreenWidth() - smallCreditButtons.width), static_cast<float>(GetScreenHeight() - 70) }, 0, 1, WHITE);
 	DrawTextureEx(smallCreditButtons, Vector2{ -3, static_cast<float>(GetScreenHeight() - 70) }, 0, 1, WHITE);
 	DrawTexture(leftClick, 280, 500, WHITE);
 	DrawTexture(rightClick, 580, 500, WHITE);
 
 
 	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
+	DrawTextEx(font, TextFormat("Next"), Vector2{ 920, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
 	DrawTextEx(titleFont, TextFormat("Remasteroids is a remastered\nversion of the classic game\n'Asteroids'. The objective of the\ngame is to shoot and destroy\nasteroids avoiding colliding with\nthe fragments that detach from\nthem."),
 		Vector2{ 70, 50 },
 		static_cast<float>(font.baseSize), 0, WHITE);
@@ -673,7 +691,78 @@ void drawOptions(Texture2D smallCreditButtons, Font font, Font titleFont, Textur
 
 }
 
-void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont)
+void options2Boxes(int& currentScreen, Texture2D smallCreditButtons)
+{
+	Rectangle optionsBox = { -3, static_cast<float>(GetScreenHeight() - 70), static_cast<float>(smallCreditButtons.width), static_cast<float>(smallCreditButtons.height) };
+
+	if ((IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), optionsBox)))
+		currentScreen = Options;
+
+}
+
+void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D spacemanSpriteFront, Texture2D asteroidSprite)
+{
+	float textLength = MeasureTextEx(gameFont, "Enemys", static_cast<float>(gameFont.baseSize), 0).x;
+
+
+	DrawTextureEx(smallCreditButtons, Vector2{ -3, static_cast<float>(GetScreenHeight() - 70) }, 0, 1, WHITE);
+
+
+	DrawTextEx(font, TextFormat("Back"), Vector2{ 130, static_cast<float>(GetScreenHeight() - 50) }, static_cast<float>(font.baseSize), 0, WHITE);
+	DrawTextEx(gameFont, TextFormat("Enemys"),
+		Vector2{ GetScreenWidth() / 2 - textLength / 2, 50 },
+		static_cast<float>(gameFont.baseSize), 0, WHITE);
+
+	DrawRectangleLines(GetScreenWidth() / 2 - 200, 200, 100, 100, WHITE);
+	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 180), 170}, static_cast<float>(font.baseSize / 1.2), 0, RED);
+	
+	DrawTexturePro(asteroidSprite,
+		Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+		Rectangle{ static_cast<float>(GetScreenWidth() / 2 - 150 ), static_cast<float>(250), 100, 100 },
+		Vector2{ 100 / 2, 100 / 2 },
+		0,
+		WHITE);
+
+	DrawRectangleLines(GetScreenWidth() / 2 - 26, 226, 53, 53, WHITE);
+	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 20), 205 }, static_cast<float>(font.baseSize / 1.8), 0, RED);
+	
+	DrawTexturePro(asteroidSprite,
+		Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+		Rectangle{ static_cast<float>(GetScreenWidth() / 2  ), static_cast<float>(250), 53, 53 },
+		Vector2{ 53 / 2, 53 / 2 },
+		0,
+		WHITE);
+
+	DrawRectangleLines(GetScreenWidth() / 2 + 105, 235, 30, 30, WHITE);
+	DrawTextEx(gameFont, TextFormat("1 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 + 105), 220 }, static_cast<float>(font.baseSize / 2.4), 0, RED);
+	
+	DrawTexturePro(asteroidSprite,
+		Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+		Rectangle{ static_cast<float>(GetScreenWidth() / 2 + 120), static_cast<float>(250), 30, 30 },
+		Vector2{ 30 / 2, 30 / 2 },
+		0,
+		WHITE);
+
+
+	DrawRectangleLines(GetScreenWidth() / 2 - 48 , 366, 96, 128, WHITE);
+	DrawTextEx(gameFont, TextFormat("20 HP"), Vector2{ static_cast<float>(GetScreenWidth() / 2 - 53), 333 }, static_cast<float>(font.baseSize / 1.2), 0, RED);
+	
+	DrawTexturePro(spacemanSpriteFront,
+		Rectangle{ 0, 0, static_cast<float>(spacemanSpriteFront.width) ,static_cast<float>(spacemanSpriteFront.height) },
+		Rectangle{ static_cast<float>(GetScreenWidth() / 2), static_cast<float>(420), 48 * 2, 64 * 2 },
+		Vector2{ 48 * 2 / 2 , 64* 2 / 2 },
+		0,
+		WHITE);
+
+	//DrawLine(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), WHITE);
+
+
+
+	DrawTextEx(titleFont, TextFormat("20 Hp"), Vector2{ 525, 900 }, static_cast<float>(font.baseSize), 0, RED);
+
+}
+
+void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame, Texture2D bullet)
 {
 	int scoreLength = static_cast<int>(MeasureTextEx(titleFont, "Score: %02.020f ", static_cast<float>(titleFont.baseSize / 2.5), 0).x);
 
@@ -687,7 +776,6 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 	}
 
 
-
 	drawShip(shipSprite, shipSpriteNitro);
 	for (int i = 0; i < maxAsteroids; i++)
 	{
@@ -695,9 +783,9 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 	}
 
+	drawBullets(bullet);
 
-	DrawRectangle(static_cast<int>(spaceman.position.x), static_cast<int>(spaceman.position.y), static_cast<int>(spaceman.x), static_cast<int>(spaceman.y), RED);
-
+	drawSpaceman(spacemanSprite, frameWidth, frameHeight, frame);
 
 	DrawFPS(10, 10);
 
@@ -710,23 +798,49 @@ void reset(float& score, int& playOnce)
 	ship.lifes = 3;
 	ship.isAlive = false;
 	score = 0;
-
 	playOnce = 0;
 
-	for (int i = 0; i < maxBullets - 1; i++)
+	spaceman.isActive = true;
+	spaceman.lifes = 20;
+	spaceman.position = { 10, 80 };
+	spaceman.isGoingBack = false;
+
+
+	for (int i = 0; i < maxBullets; i++)
 	{
 		bullets[i].isActive = false;
 	}
 
-	for (int i = 0; i < maxAsteroids - 1; i++)
+	for (int i = 0; i < maxAsteroids; i++)
 	{
 		asteroids[i].isActive = true;
 	}
 
-	for (int i = maxAsteroids - 1; i > maxAsteroids - maxAuxAsteroids; i--)
+
+	int countAsteroids = 0;
+
+	for (int i = 0; i < maxBigAsteroids; i++)
 	{
-		asteroids[i].isActive = false;
+		asteroids[countAsteroids] = bigAsteroids[i];
+		countAsteroids++;
 	}
+	for (int i = 0; i < maxMediumAsteroids; i++)
+	{
+		asteroids[countAsteroids] = mediumAsteroids[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxSmallAsteroids; i++)
+	{
+		asteroids[countAsteroids] = smallAsteroids[i];
+		countAsteroids++;
+	}
+	for (int i = 0; i < maxAuxAsteroids; i++)
+	{
+		asteroids[countAsteroids] = auxAsteroids[i];
+		countAsteroids++;
+
+	}
+
 }
 
 bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2)
@@ -745,5 +859,25 @@ bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, floa
 		return false;
 	}
 
+}
+
+void pauseMode(Texture2D playButton, Texture2D quitButton, Vector2 mousePosition, bool& pause, bool& firstLife, int& currentScreen, int& playOnce, float& score)
+{
+	if (pause)
+	{
+		DrawTexture(playButton, GetScreenWidth() / 2 - quitButton.width / 2, 275, WHITE);
+		DrawTexture(quitButton, GetScreenWidth() / 2 - quitButton.width / 2, 425, WHITE);
+
+		if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - playButton.width / 2), 275, static_cast<float>(playButton.width) , static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			pause = !pause;
+		if (CheckCollisionPointRec(mousePosition, Rectangle{ static_cast<float>(GetScreenWidth() / 2 - quitButton.width / 2), 425, static_cast<float>(quitButton.width) ,static_cast<float>(quitButton.height) }) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		{
+			currentScreen = Menu;
+			reset(score, playOnce);
+			pause = !pause;
+			firstLife = true;
+		}
+
+	}
 }
 

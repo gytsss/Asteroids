@@ -17,4 +17,6 @@ struct Bullet
 
 Bullet initBullet(Bullet bullet, Ship ship, Vector2 vectorDirection);
 
+void drawBullets(Texture2D bullet);
+
 

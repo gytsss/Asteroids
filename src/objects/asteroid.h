@@ -32,4 +32,6 @@ void initAsteroid(Asteroid& asteroid,float x, float y, float rotation, AsteroidS
 
 void drawAsteroid( Texture2D asteroidSprite, int i);
 
-void separateAsteroids(int& currentAsteroids, int i);
+void separateAsteroids( int i);
+
+bool anyAsteroidAlive();

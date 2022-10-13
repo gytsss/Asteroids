@@ -75,20 +75,19 @@ void drawAsteroid(Texture2D asteroidSprite, int i)
 	
 }
 
-void separateAsteroids(int &currentAsteroids, int i)
+void separateAsteroids( int i)
 {
 	if (asteroids[i].size == AsteroidSize::Big)
 	{
 		initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-		currentAsteroids++;
-
+		
 		int count = 0;
 		for (int k = maxAsteroids - 1; k >= 0; k--)
 		{
 			if (!asteroids[k].isActive && count == 0)
 			{
 				initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-				currentAsteroids++;
+				
 				count++;
 			}
 		}
@@ -97,16 +96,28 @@ void separateAsteroids(int &currentAsteroids, int i)
 	else if (asteroids[i].size == AsteroidSize::Medium)
 	{
 		initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-		currentAsteroids++;
 		int count = 0;
 		for (int k = maxAsteroids - 1; k >= 0; k--)
 		{
 			if (!asteroids[k].isActive && count == 0)
 			{
 				initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-				currentAsteroids++;
+				
 				count++;
 			}
 		}
 	}
+}
+
+bool anyAsteroidAlive()
+{
+	for (int i = 0; i < maxAsteroids; i++)
+	{
+		if (asteroids[i].isActive)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
