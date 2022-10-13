@@ -8,12 +8,12 @@ void initSpaceman(Spaceman& spaceMan)
 	spaceMan.x = 20;
 	spaceMan.y = 47;
 	spaceMan.position = { 10, 80 };
-	spaceMan.lifes = 2;
+	spaceMan.lifes = 25;
 	spaceMan.isGoingBack = false;
 	spaceMan.isActive = true;
 
 	spaceMan.speed.x = static_cast<float>(GetRandomValue(200, 400));
-	
+
 }
 
 void drawSpaceman(Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame)
@@ -22,17 +22,37 @@ void drawSpaceman(Texture2D spacemanSprite, float frameWidth, float frameHeight,
 	{
 		if (!spaceman.isGoingBack)
 		{
-			DrawTextureRec(spacemanSprite,
-				Rectangle{ (frameWidth * frame) + 12, static_cast<float>(spacemanSprite.height / 3.25), frameWidth, frameHeight },
-				spaceman.position,
-				WHITE);
+			if (spaceman.lifes >= 13)
+			{
+				DrawTextureRec(spacemanSprite,
+					Rectangle{ (frameWidth * frame) + 12, static_cast<float>(spacemanSprite.height / 3.25), frameWidth, frameHeight },
+					spaceman.position,
+					WHITE);
+			}
+			else if (spaceman.lifes < 13)
+			{
+				DrawTextureRec(spacemanSprite,
+					Rectangle{ (frameWidth * frame) + 12, static_cast<float>(spacemanSprite.height / 3.25), frameWidth, frameHeight },
+					spaceman.position,
+					RED);
+			}
 		}
 		else if (spaceman.isGoingBack)
 		{
-			DrawTextureRec(spacemanSprite,
-				Rectangle{ (frameWidth * frame) + 12 , static_cast<float>(spacemanSprite.height / 1.24), frameWidth, frameHeight },
-				spaceman.position,
-				WHITE);
+			if (spaceman.lifes >= 13)
+			{
+				DrawTextureRec(spacemanSprite,
+					Rectangle{ (frameWidth * frame) + 12 , static_cast<float>(spacemanSprite.height / 1.24), frameWidth, frameHeight },
+					spaceman.position,
+					WHITE);
+			}
+			else if (spaceman.lifes < 13)
+			{
+				DrawTextureRec(spacemanSprite,
+					Rectangle{ (frameWidth * frame) + 12 , static_cast<float>(spacemanSprite.height / 1.24), frameWidth, frameHeight },
+					spaceman.position,
+					RED);
+			}
 		}
 	}
 }

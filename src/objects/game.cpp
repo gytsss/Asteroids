@@ -34,7 +34,7 @@ static bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center
 static void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosion3, Sound explosion4, Sound explosion5, Sound explosion6, Sound explosion7, Sound explosion8, Sound explosion9, float& score, Sound pickLife);
 static void collisionShipSpaceman(Sound shipExplosion);
 static void collisionShipAsteroids(bool& isWhipPowerUpOn, Sound shipExplosion);
-static void collisionSpacemanBullets(bool& isWhipPowerUpOn);
+static void collisionSpacemanBullets(bool& isWhipPowerUpOn, float& score);
 
 
 static void drawCursor(Texture2D cursor, Vector2 mousePosition);
@@ -224,7 +224,7 @@ void runGame()
 
 		respawn();
 
-		collisionSpacemanBullets(isWhipPowerUpOn);
+		collisionSpacemanBullets(isWhipPowerUpOn, score);
 
 		collisionAsteroidsBullets(explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7, explosion8, explosion9, score, pickLife);
 
@@ -237,7 +237,7 @@ void runGame()
 		if (!spaceman.isActive && spaceman.lifes <= 0 && !isWhipPowerUpOn)
 		{
 			spaceman.isActive = true;
-			spaceman.lifes = 2;
+			spaceman.lifes = 25;
 			spaceman.position = { 10, 80 };
 		}
 
@@ -999,7 +999,7 @@ void respawn()
 	}
 }
 
-void collisionSpacemanBullets(bool& isWhipPowerUpOn)
+void collisionSpacemanBullets(bool& isWhipPowerUpOn, float& score)
 {
 	for (int i = 0; i < maxBullets; i++)
 	{
@@ -1007,6 +1007,7 @@ void collisionSpacemanBullets(bool& isWhipPowerUpOn)
 		{
 			spaceman.lifes--;
 			bullets[i].isActive = false;
+			score += 10;
 
 			if (spaceman.lifes <= 0)
 			{
