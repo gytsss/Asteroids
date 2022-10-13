@@ -961,8 +961,12 @@ void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosi
 				asteroids[i].isActive = false;
 				bullets[j].isActive = false;
 
-				separateAsteroids(i);
+				
+				if (GetRandomValue(1, 100) <= 5 && ship.lifes < 3)
+					ship.lifes++;
 
+
+				separateAsteroids(i);
 			}
 
 		}

@@ -1,9 +1,9 @@
 #pragma once
 #include "raylib.h"
 
-const int maxBigAsteroids = 2;
-const int maxMediumAsteroids = 3;
-const int maxSmallAsteroids = 2;
+const int maxBigAsteroids = 3;
+const int maxMediumAsteroids = 2;
+const int maxSmallAsteroids = 5;
 const int maxAuxAsteroids = 30;
 
 const int maxAsteroids = maxBigAsteroids + maxMediumAsteroids + maxSmallAsteroids + maxAuxAsteroids;
