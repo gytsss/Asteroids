@@ -1,11 +1,16 @@
-﻿  game.cpp
+﻿  main.cpp
+  asteroid.cpp
+  bullets.cpp
+  game.cpp
+  spaceShip.cpp
+  spaceman.cpp
   Generando código
-  2 of 30 functions ( 6.7%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
+  23 of 39 functions (59.0%) were compiled, the rest were copied from previous compilation.
+    13 functions were new in current compilation
     1 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
 raylib.lib(raudio.obj) : warning LNK4099: no se encontró PDB 'raylib.pdb' con 'raylib.lib(raudio.obj)' o en 'C:\IC\2do Cuatri\Desarrollo de Videojuegos 1\Asteroids\bin\Win32Release\raylib.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
-raylib.lib(rcore.obj) : warning LNK4099: no se encontró PDB '' con 'raylib.lib(rcore.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+raylib.lib(rcore.obj) : warning LNK4099: no se encontró PDB 'raylib.pdb' con 'raylib.lib(rcore.obj)' o en 'C:\IC\2do Cuatri\Desarrollo de Videojuegos 1\Asteroids\bin\Win32Release\raylib.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
 raylib.lib(rglfw.obj) : warning LNK4099: no se encontró PDB 'raylib.pdb' con 'raylib.lib(rglfw.obj)' o en 'C:\IC\2do Cuatri\Desarrollo de Videojuegos 1\Asteroids\bin\Win32Release\raylib.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
 raylib.lib(rshapes.obj) : warning LNK4099: no se encontró PDB 'raylib.pdb' con 'raylib.lib(rshapes.obj)' o en 'C:\IC\2do Cuatri\Desarrollo de Videojuegos 1\Asteroids\bin\Win32Release\raylib.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
 raylib.lib(rtext.obj) : warning LNK4099: no se encontró PDB 'raylib.pdb' con 'raylib.lib(rtext.obj)' o en 'C:\IC\2do Cuatri\Desarrollo de Videojuegos 1\Asteroids\bin\Win32Release\raylib.pdb'; se vinculará el objeto sin tener en cuenta información de depuración

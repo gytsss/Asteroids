@@ -72,6 +72,8 @@ void runGame()
 	Sound gameOver = LoadSound("res/gameOver.wav");
 	Sound pickLife = LoadSound("res/pickLife.wav");
 
+	Music music = LoadMusicStream("res/music.mp3");
+
 
 
 	pauseButton.width = pauseButton.width / 2;
@@ -104,6 +106,9 @@ void runGame()
 	SetSoundVolume(explosion9, 0.3f);
 	SetSoundVolume(gameOver, 0.3f);
 
+	SetMusicVolume(music, 0.2f);
+	PlayMusicStream(music);
+
 	initSpaceman(spaceman);
 	initSpaceman(menuSpaceman);
 
@@ -119,7 +124,7 @@ void runGame()
 	Vector2 deadTextLenght = MeasureTextEx(gameFont, "Game Over", static_cast<float>(gameFont.baseSize), 0);
 
 
-	int currentScreen = Options3;
+	int currentScreen = Menu;
 
 
 	bool pause = false;
@@ -185,9 +190,13 @@ void runGame()
 
 	}
 
+
+	
 	
 	while (!WindowShouldClose() && !gameFinish)
 	{
+		UpdateMusicStream(music);
+
 		mousePosition = GetMousePosition();
 
 
@@ -501,6 +510,8 @@ void runGame()
 	UnloadSound(shipExplosion);
 	UnloadSound(gameOver);
 	UnloadSound(pickLife);
+
+	UnloadMusicStream(music);
 	CloseAudioDevice();
 
 	CloseWindow();
@@ -823,12 +834,6 @@ void drawOptions3(Texture2D smallCreditButtons, Font font, Font titleFont, Font 
 		0,
 		WHITE);
 
-	/*DrawTexturePro(stonks,
-		Rectangle{ 0, 0, static_cast<float>(stonks.width) ,static_cast<float>(stonks.height) },
-		Rectangle{ 75, 100, 130, 100 },
-		Vector2{ 130 / 2, 100 / 2 },
-		0,
-		WHITE);*/
 	
 }
 
@@ -838,6 +843,7 @@ void drawGame(Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPau
 
 	DrawTexture(smallPauseButton, -3, static_cast<int>(GetScreenHeight() - 45), WHITE);
 	DrawRectangleLines(static_cast<int>(GetScreenWidth() / 2), 15, scoreLength, 40, WHITE);
+	DrawRectangleLines(180, 5, shipSprite.width * ship.lifes, 50, WHITE);
 	DrawTextEx(titleFont, TextFormat("Score: %02.02f ", score), Vector2{ 520, 20 }, static_cast<float>(titleFont.baseSize / 2.5), 0, WHITE);
 
 	for (int i = 0; i < ship.lifes; i++)
