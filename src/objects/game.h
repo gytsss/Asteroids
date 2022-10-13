@@ -12,6 +12,7 @@ enum Screen
 	Game,
 	Options,
 	Options2,
+	Options3,
 	Credits,
 	Quit
 };
@@ -40,10 +41,14 @@ void options2Boxes(int& currentScreen, Texture2D smallCreditButtons);
 
 void drawOptions2(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D spacemanSpriteFront, Texture2D asteroidSprite);
 
+void options3Boxes(int& currentScreen, Texture2D smallCreditButtons);
+
+void drawOptions3(Texture2D smallCreditButtons, Font font, Font titleFont, Font gameFont, Texture2D stonks);
+
 void drawGame( Texture2D shipSprite, Texture2D asteroidSprite, Texture2D smallPauseButton, float score, Texture2D shipSpriteNitro, Font titleFont, Texture2D spacemanSprite, float frameWidth, float frameHeight, int frame, Texture2D bullet);
 
 bool collisionCircleCircle(Vector2 center1, float radius1, Vector2 center2, float radius2);
 
 void pauseMode(Texture2D playButton, Texture2D quitButton, Vector2 mousePosition, bool& pause, bool& firstLife, int& currentScreen, int& playOnce, float& score, bool& isWhipPowerUpOn);
 
-void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosion3, Sound explosion4, Sound explosion5, Sound explosion6, Sound explosion7, Sound explosion8, Sound explosion9, float& score);
+void collisionAsteroidsBullets(Sound explosion1, Sound explosion2, Sound explosion3, Sound explosion4, Sound explosion5, Sound explosion6, Sound explosion7, Sound explosion8, Sound explosion9, float& score, Sound pickLife);
