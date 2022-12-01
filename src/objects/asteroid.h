@@ -22,6 +22,7 @@ struct Asteroid
 	float y;
 	int radius;
 	float rotation;
+	float rotationVel;
 	bool isActive;
 	Vector2 position;
 	Vector2 speed;

@@ -12,6 +12,7 @@ Ship initShip()
 	ship.isAlive = true;
 	ship.position = { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) };
 	ship.speed = { 0,0 };
+	ship.velocity = { 200,200 };
 	return ship;
 }
 

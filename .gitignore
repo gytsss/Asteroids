@@ -1,7 +1,7 @@
 *.vs/
-*Debug/
-*Asteroids/Debug/
-*Asteroids/x64/
+*bin/
+*obj/
+
 
        
 

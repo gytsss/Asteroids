@@ -406,8 +406,8 @@ void input(Vector2 normalizeDirect)
 {
 	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && ship.isAlive)
 	{
-		ship.speed.x += normalizeDirect.x;
-		ship.speed.y += normalizeDirect.y;
+		ship.speed.x += normalizeDirect.x * ship.velocity.x * GetFrameTime();
+		ship.speed.y += normalizeDirect.y * ship.velocity.y * GetFrameTime();
 
 	}
 

@@ -15,6 +15,7 @@ struct Ship
 	bool isAlive;
 	Vector2 position;
 	Vector2 speed;
+	Vector2 velocity;
 };
 
 Ship initShip();

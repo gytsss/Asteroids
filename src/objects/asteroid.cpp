@@ -19,6 +19,7 @@ void initAsteroid(Asteroid& asteroid, float x, float y, float rotation, Asteroid
 	if (asteroid.size == AsteroidSize::Big)
 		asteroid.radius = 40;
 
+	asteroid.rotationVel = 100;
 
 	int randomSpeedX;
 	int randomSpeedY;
@@ -44,50 +45,50 @@ void initAsteroid(Asteroid& asteroid, float x, float y, float rotation, Asteroid
 
 void drawAsteroid(Texture2D asteroidSprite, int i)
 {
-	
-		if (asteroids[i].size == AsteroidSize::Big && asteroids[i].isActive)
-		{
-			DrawTexturePro(asteroidSprite,
-				Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
-				Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 100, 100 },
-				Vector2{ 100 / 2, 100 / 2 },
-				asteroids[i].rotation,
-				WHITE);
-		}
-		else if (asteroids[i].size == AsteroidSize::Medium && asteroids[i].isActive)
-		{
-			DrawTexturePro(asteroidSprite,
-				Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
-				Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 53, 53 },
-				Vector2{ 53 / 2, 53 / 2 },
-				asteroids[i].rotation,
-				WHITE);
-		}
-		else if (asteroids[i].size == AsteroidSize::Small && asteroids[i].isActive)
-		{
-			DrawTexturePro(asteroidSprite,
-				Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height )},
-				Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 30, 30 },
-				Vector2{ 30 / 2, 30 / 2 },
-				asteroids[i].rotation,
-				WHITE);
-		}
-	
+
+	if (asteroids[i].size == AsteroidSize::Big && asteroids[i].isActive)
+	{
+		DrawTexturePro(asteroidSprite,
+			Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+			Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 100, 100 },
+			Vector2{ 100 / 2, 100 / 2 },
+			asteroids[i].rotation,
+			WHITE);
+	}
+	else if (asteroids[i].size == AsteroidSize::Medium && asteroids[i].isActive)
+	{
+		DrawTexturePro(asteroidSprite,
+			Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+			Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 53, 53 },
+			Vector2{ 53 / 2, 53 / 2 },
+			asteroids[i].rotation,
+			WHITE);
+	}
+	else if (asteroids[i].size == AsteroidSize::Small && asteroids[i].isActive)
+	{
+		DrawTexturePro(asteroidSprite,
+			Rectangle{ 0, 0, static_cast<float>(asteroidSprite.width) ,static_cast<float>(asteroidSprite.height) },
+			Rectangle{ static_cast<float>(asteroids[i].x), static_cast<float>(asteroids[i].y), 30, 30 },
+			Vector2{ 30 / 2, 30 / 2 },
+			asteroids[i].rotation,
+			WHITE);
+	}
+
 }
 
-void separateAsteroids( int i)
+void separateAsteroids(int i)
 {
 	if (asteroids[i].size == AsteroidSize::Big)
 	{
 		initAsteroid(asteroids[i], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-		
+
 		int count = 0;
 		for (int k = maxAsteroids - 1; k >= 0; k--)
 		{
 			if (!asteroids[k].isActive && count == 0)
 			{
 				initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Medium);
-				
+
 				count++;
 			}
 		}
@@ -102,7 +103,7 @@ void separateAsteroids( int i)
 			if (!asteroids[k].isActive && count == 0)
 			{
 				initAsteroid(asteroids[k], asteroids[i].x, asteroids[i].y, 0, AsteroidSize::Small);
-				
+
 				count++;
 			}
 		}
@@ -155,7 +156,7 @@ void asteroidsMovement()
 	{
 		asteroids[i].x += asteroids[i].speed.x * GetFrameTime();
 		asteroids[i].y += asteroids[i].speed.y * GetFrameTime();
-		asteroids[i].rotation++;
+		asteroids[i].rotation += 1 * asteroids[i].rotationVel *  GetFrameTime();
 	}
 }
 
